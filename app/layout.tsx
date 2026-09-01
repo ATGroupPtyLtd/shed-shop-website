@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shed-shop-reimagined.sites.chatgpt.com"),
+  metadataBase: new URL("https://shed-shop.com.au"),
   title: "The Shed Shop | Built for What’s Next",
   description: "Custom Australian-made sheds, designed, approved and built for Victorian homes, farms and businesses.",
   openGraph: {
