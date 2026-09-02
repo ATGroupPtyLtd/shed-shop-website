@@ -3,8 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://shed-shop.com.au"),
-  title: { default: "The Shed Shop | Built for What's Next", template: "%s | The Shed Shop" },
-  description: "Custom Australian-made sheds, designed, approved and built for Victorian homes, farms and businesses.",
+  title: {
+    default: "The Shed Shop | Built for What's Next",
+    template: "%s | The Shed Shop",
+  },
+  description:
+    "Custom Australian-made sheds, designed, approved and built for Victorian homes, farms and businesses.",
   openGraph: {
     title: "The Shed Shop | Built for What's Next",
     description: "Custom sheds. Designed, approved and built in Victoria.",
@@ -19,6 +23,12 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en-AU"><body>{children}</body></html>;
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en-AU">
+      <body>{children}</body>
+    </html>
+  );
 }
