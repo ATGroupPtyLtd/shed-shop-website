@@ -3,16 +3,16 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://shed-shop.com.au"),
-  title: "The Shed Shop | Built for What’s Next",
+  title: { default: "The Shed Shop | Built for What's Next", template: "%s | The Shed Shop" },
   description: "Custom Australian-made sheds, designed, approved and built for Victorian homes, farms and businesses.",
   openGraph: {
-    title: "The Shed Shop | Built for What’s Next",
+    title: "The Shed Shop | Built for What's Next",
     description: "Custom sheds. Designed, approved and built in Victoria.",
     images: ["/og.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Shed Shop | Built for What’s Next",
+    title: "The Shed Shop | Built for What's Next",
     description: "Custom sheds. Designed, approved and built in Victoria.",
     images: ["/og.png"],
   },
