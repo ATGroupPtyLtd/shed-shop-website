@@ -53,17 +53,17 @@ export const claddingProfiles = [
 
 export const colours = [
   { id: "monument", label: "Monument", hex: "#323333" },
-  { id: "surfmist", label: "Surfmist", hex: "#D7D8CF" },
-  { id: "woodland-grey", label: "Woodland Grey", hex: "#4C514B" },
-  { id: "night-sky", label: "Night Sky", hex: "#16191B" },
-  { id: "shale-grey", label: "Shale Grey", hex: "#B4B4AC" },
-  { id: "basalt", label: "Basalt", hex: "#6D6E6C" },
-  { id: "dune", label: "Dune", hex: "#B1A994" },
-  { id: "pale-eucalypt", label: "Pale Eucalypt", hex: "#7C8B79" },
-  { id: "ironstone", label: "Ironstone", hex: "#3E4B5B" },
-  { id: "deep-ocean", label: "Deep Ocean", hex: "#254C62" },
-  { id: "manor-red", label: "Manor Red", hex: "#6F3031" },
-  { id: "classic-cream", label: "Classic Cream", hex: "#D8CDA6" },
+  { id: "surfmist", label: "Surfmist", hex: "#E4E2D5" },
+  { id: "woodland-grey", label: "Woodland Grey", hex: "#4B4C46" },
+  { id: "night-sky", label: "Night Sky", hex: "#000000" },
+  { id: "shale-grey", label: "Shale Grey", hex: "#BDBFBA" },
+  { id: "basalt", label: "Basalt", hex: "#6D6C6E" },
+  { id: "dune", label: "Dune", hex: "#B1ADA3" },
+  { id: "pale-eucalypt", label: "Pale Eucalypt", hex: "#7C846A" },
+  { id: "ironstone", label: "Ironstone", hex: "#3E434C" },
+  { id: "deep-ocean", label: "Deep Ocean", hex: "#364152" },
+  { id: "manor-red", label: "Manor Red", hex: "#5E1D0E" },
+  { id: "classic-cream", label: "Classic Cream", hex: "#E9DCB8" },
 ] as const;
 
 export const projects = [
