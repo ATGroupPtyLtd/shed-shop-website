@@ -25,7 +25,10 @@ export function ShedBuilder({
     claddingProfiles.find((item) => item.id === profile) ?? claddingProfiles[0];
   const currentColour =
     colours.find((item) => item.id === colour) ?? colours[0];
-  const image = `/configurator/${purpose}/${style}/${profile}/${colour}.webp`;
+  const image =
+    profile === "corrugated"
+      ? `/concepts/${purpose}-${style}.png`
+      : `/concepts/${purpose}-${style}-${profile}.webp`;
 
   const reset = () => {
     setPurpose(safePurpose);
@@ -49,7 +52,17 @@ export function ShedBuilder({
           <div className="render-status">
             <i /> Live catalogue render
           </div>
-          <div className="render-count">720 render combinations</div>
+          <div className="render-count">60 profile concepts</div>
+          <div
+            className="finish-preview"
+            aria-label={`Selected finish: ${currentColour.label}`}
+          >
+            <i style={{ backgroundColor: currentColour.hex }} />
+            <span>
+              Selected finish
+              <b>{currentColour.label}</b>
+            </span>
+          </div>
         </div>
         <div className="build-readout">
           <div>

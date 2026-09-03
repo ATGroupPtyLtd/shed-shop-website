@@ -1303,7 +1303,7 @@ p {
 .builder-app {
   display: grid;
   grid-template-columns: 0.94fr 1.06fr;
-  gap: 28px;
+  gap: 0;
   align-items: start;
 }
 
@@ -1322,7 +1322,46 @@ p {
 
 .builder-canvas img {
   object-fit: cover;
+  transform: scale(1.056);
   animation: render-in 0.32s ease both;
+}
+
+.finish-preview {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  padding: 8px 11px 8px 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(5, 22, 34, 0.88);
+  color: white;
+  box-shadow: 0 8px 24px rgba(5, 22, 34, 0.18);
+}
+
+.finish-preview > i {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.finish-preview span {
+  display: grid;
+  gap: 1px;
+  color: #9edcf0;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.finish-preview b {
+  color: white;
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 
 .render-status,
@@ -1536,7 +1575,7 @@ p {
 }
 
 .builder-card-grid button {
-  min-height: 112px;
+  min-height: 130px;
   padding: 12px 8px;
   display: flex;
   flex-direction: column;
@@ -2179,12 +2218,12 @@ p {
 @keyframes render-in {
   from {
     opacity: 0.3;
-    transform: scale(1.018);
+    transform: scale(1.065);
   }
 
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1.056);
   }
 }
 
