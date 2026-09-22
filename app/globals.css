@@ -1755,6 +1755,57 @@ p {
   color: var(--blue-dark);
 }
 
+.builder-size-intro {
+  max-width: 580px;
+  margin: -3px 0 15px;
+  color: #6f858f;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.builder-size-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.builder-size-grid label {
+  color: #4c6571;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.builder-size-grid label span {
+  margin-left: 3px;
+  color: #91a3ab;
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.builder-size-grid input {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 7px;
+  padding: 12px;
+  border: 1px solid #cedde3;
+  border-radius: 0;
+  background: #f3f7f9;
+  color: var(--ink);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.builder-size-grid input:focus {
+  border-color: var(--blue);
+  outline: 1px solid var(--blue);
+}
+
 .builder-submit {
   padding-top: 28px;
   display: flex;
@@ -1794,6 +1845,17 @@ p {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.builder-submit .builder-submit-disabled {
+  min-height: 50px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  background: #dce6ea;
+  color: #718690;
+  font-size: 10px;
+  letter-spacing: 0.04em;
 }
 
 .builder-submit svg {
@@ -2126,6 +2188,49 @@ p {
   font-size: 10px;
 }
 
+.form-section {
+  padding: 6px 0 30px;
+}
+
+.form-section+.form-section {
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+}
+
+.form-section-head {
+  margin-bottom: 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.form-section-head>span {
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  display: grid;
+  place-items: center;
+  background: #def2f8;
+  color: var(--blue-dark);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.form-section-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.form-section-head p {
+  margin: 6px 0 0;
+  color: #7a909a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2166,6 +2271,136 @@ p {
 
 .quote-form textarea {
   resize: vertical;
+}
+
+.quote-form .field-hint {
+  margin-top: 6px;
+  display: block;
+  color: #82969f;
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.dimension-heading {
+  margin: 7px 0 4px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.dimension-heading strong {
+  color: #4c6571;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dimension-heading span,
+.dimension-note {
+  color: #82969f;
+  font-size: 10px;
+}
+
+.dimension-note {
+  margin: -8px 0 8px;
+}
+
+.conditional-fields {
+  margin: 1px 0 17px;
+  padding: 16px 16px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  border-left: 2px solid var(--blue);
+  background: #f2f7f9;
+}
+
+.choice-block {
+  margin: 4px 0 18px;
+}
+
+.choice-block>span {
+  display: block;
+  color: #4c6571;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.choice-grid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.quote-form .choice-grid label {
+  min-height: 48px;
+  margin: 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #cfdee4;
+  background: #f2f7f9;
+  color: #4c6571;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: none;
+}
+
+.choice-grid input {
+  width: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  opacity: 0;
+}
+
+.choice-grid i {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #9fb7c2;
+  background: white;
+  color: transparent;
+  font-style: normal;
+}
+
+.choice-grid i svg {
+  width: 12px;
+}
+
+.choice-grid label:has(input:checked) {
+  border-color: var(--blue);
+  background: #ebf8fc;
+  color: var(--ink);
+}
+
+.choice-grid input:checked+i {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: white;
+}
+
+.choice-grid input:focus-visible+i {
+  outline: 2px solid var(--blue-dark);
+  outline-offset: 2px;
 }
 
 .quote-honeypot {
@@ -2765,8 +3000,17 @@ p {
   .finish-options,
   .form-grid,
   .form-grid.three,
+  .conditional-fields,
+  .choice-grid,
+  .builder-size-grid,
   .contact-list {
     grid-template-columns: 1fr;
+  }
+
+  .dimension-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .builder-card-grid,

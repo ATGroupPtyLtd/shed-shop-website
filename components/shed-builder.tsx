@@ -18,6 +18,9 @@ export function ShedBuilder({
   const [style, setStyle] = useState("gable");
   const [profile, setProfile] = useState("corrugated");
   const [colour, setColour] = useState("monument");
+  const [width, setWidth] = useState("");
+  const [length, setLength] = useState("");
+  const [height, setHeight] = useState("");
   const currentPurpose =
     purposes.find((item) => item.id === purpose) ?? purposes[0];
   const currentStyle = styles.find((item) => item.id === style) ?? styles[0];
@@ -26,12 +29,19 @@ export function ShedBuilder({
   const currentColour =
     colours.find((item) => item.id === colour) ?? colours[0];
   const image = `/concepts/${purpose}-${style}.webp`;
+  const dimensionsReady = [width, length, height].every(
+    (value) => Number(value) > 0,
+  );
+  const quoteHref = `/quote?purpose=${purpose}&style=${style}&profile=${profile}&colour=${colour}&width=${encodeURIComponent(width)}&length=${encodeURIComponent(length)}&height=${encodeURIComponent(height)}`;
 
   const reset = () => {
     setPurpose(safePurpose);
     setStyle("gable");
     setProfile("corrugated");
     setColour("monument");
+    setWidth("");
+    setLength("");
+    setHeight("");
   };
 
   return (
@@ -68,7 +78,8 @@ export function ShedBuilder({
               {currentStyle.label} {currentPurpose.title}
             </h2>
             <p>
-              {currentProfile.label} · {currentColour.label} selected
+              {currentProfile.label} · {currentColour.label}
+              {dimensionsReady ? ` · ${width} × ${length} × ${height} m` : ""}
             </p>
           </div>
           <button type="button" onClick={reset}>
@@ -85,7 +96,7 @@ export function ShedBuilder({
       <div className="builder-controls">
         <div className="builder-progress">
           <span>Design direction</span>
-          <b>04 selections complete</b>
+          <b>{dimensionsReady ? "Ready for your brief" : "Add your approximate size"}</b>
           <i />
         </div>
         <BuilderStep number="01" title="What is the shed for?">
@@ -156,19 +167,71 @@ export function ShedBuilder({
             ))}
           </div>
         </BuilderStep>
+        <BuilderStep number="05" title="Add the approximate size">
+          <p className="builder-size-intro">
+            These dimensions are required for a useful quote. Estimates are
+            completely fine—we will confirm them with you later.
+          </p>
+          <div className="builder-size-grid">
+            <label>
+              Width <span>metres</span>
+              <input
+                type="number"
+                min="1"
+                max="500"
+                step="0.1"
+                value={width}
+                onChange={(event) => setWidth(event.target.value)}
+                placeholder="e.g. 9"
+                aria-label="Approximate shed width in metres"
+              />
+            </label>
+            <label>
+              Length <span>metres</span>
+              <input
+                type="number"
+                min="1"
+                max="500"
+                step="0.1"
+                value={length}
+                onChange={(event) => setLength(event.target.value)}
+                placeholder="e.g. 15"
+                aria-label="Approximate shed length in metres"
+              />
+            </label>
+            <label>
+              Eave height <span>metres</span>
+              <input
+                type="number"
+                min="1.8"
+                max="30"
+                step="0.1"
+                value={height}
+                onChange={(event) => setHeight(event.target.value)}
+                placeholder="e.g. 3.6"
+                aria-label="Approximate shed eave height in metres"
+              />
+            </label>
+          </div>
+        </BuilderStep>
         <div className="builder-submit">
           <div>
             <span>Design direction ready</span>
             <strong>
-              {currentPurpose.title} · {currentStyle.label} ·{" "}
-              {currentColour.label}
+              {dimensionsReady
+                ? `${width} × ${length} × ${height} m · ${currentStyle.label}`
+                : `${currentPurpose.title} · ${currentStyle.label}`}
             </strong>
           </div>
-          <Link
-            href={`/quote?purpose=${purpose}&style=${style}&profile=${profile}&colour=${colour}`}
-          >
-            Continue to project brief <ArrowRight />
-          </Link>
+          {dimensionsReady ? (
+            <Link href={quoteHref}>
+              Continue to project brief <ArrowRight />
+            </Link>
+          ) : (
+            <span className="builder-submit-disabled">
+              Add dimensions to continue
+            </span>
+          )}
         </div>
       </div>
     </div>

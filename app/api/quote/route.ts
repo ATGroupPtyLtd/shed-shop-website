@@ -1,4 +1,15 @@
 import { env } from "cloudflare:workers";
+import {
+  accessoryOptions,
+  buildTimelines,
+  frameSystems,
+  projectScopes,
+  quoteGoals,
+  rollerDoorSizes,
+  roofInsulationOptions,
+  wallInsulationOptions,
+  windowSizes,
+} from "@/lib/quote-options";
 import { claddingProfiles, colours, purposes, styles } from "@/lib/site-data";
 
 const QUOTE_TO = "admin@shed-shop.com.au";
@@ -46,12 +57,20 @@ const profileLabels = Object.fromEntries(
 const colourLabels = Object.fromEntries(
   colours.map((item) => [item.id, item.label]),
 ) as Record<string, string>;
-const scopeLabels: Record<string, string> = {
-  supply: "Supply only",
-  install: "Supply and install",
-  turnkey: "Complete turnkey project",
-  unsure: "Not sure — please advise",
-};
+const labels = (items: readonly { id: string; label: string }[]) =>
+  Object.fromEntries(items.map((item) => [item.id, item.label])) as Record<
+    string,
+    string
+  >;
+const scopeLabels = labels(projectScopes);
+const frameLabels = labels(frameSystems);
+const rollerDoorSizeLabels = labels(rollerDoorSizes);
+const windowSizeLabels = labels(windowSizes);
+const roofInsulationLabels = labels(roofInsulationOptions);
+const wallInsulationLabels = labels(wallInsulationOptions);
+const accessoryLabels = labels(accessoryOptions);
+const timelineLabels = labels(buildTimelines);
+const quoteGoalLabels = labels(quoteGoals);
 
 function text(form: FormData, name: string, maxLength = 200): string {
   const value = form.get(name);
@@ -74,6 +93,12 @@ function escapeHtml(value: string): string {
 
 function cleanFilename(value: string): string {
   return value.replace(/[^a-zA-Z0-9._ -]/g, "_").slice(0, 120);
+}
+
+function validDimension(value: string, minimum: number, maximum: number): boolean {
+  if (!/^\d+(?:\.\d+)?$/.test(value)) return false;
+  const measurement = Number(value);
+  return Number.isFinite(measurement) && measurement >= minimum && measurement <= maximum;
 }
 
 function json(body: object, status = 200): Response {
@@ -99,12 +124,30 @@ export async function POST(request: Request): Promise<Response> {
     const purpose = text(form, "type", 50);
     const scope = text(form, "scope", 50);
     const style = text(form, "style", 50);
+    const frame = text(form, "frame", 50);
     const profile = text(form, "profile", 50);
     const colour = text(form, "colour", 50);
     const width = text(form, "width", 30);
     const length = text(form, "length", 30);
     const height = text(form, "height", 30);
+    const rollerDoors = text(form, "rollerDoors", 3);
+    const rollerDoorSize = text(form, "rollerDoorSize", 50);
+    const customRollerDoorSize = text(form, "customRollerDoorSize", 250);
+    const accessDoors = text(form, "accessDoors", 3);
+    const windows = text(form, "windows", 3);
+    const windowSize = text(form, "windowSize", 50);
+    const customWindowSize = text(form, "customWindowSize", 250);
+    const openingNotes = text(form, "openingNotes", 1500);
+    const roofInsulation = text(form, "roofInsulation", 50);
+    const wallInsulation = text(form, "wallInsulation", 50);
+    const otherRequirements = text(form, "otherRequirements", 1000);
+    const timeline = text(form, "timeline", 50);
+    const quoteGoal = text(form, "quoteGoal", 50);
     const details = text(form, "details", 5000);
+    const selectedAccessories = form
+      .getAll("accessories")
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.slice(0, 50));
 
     const required = [
       name,
@@ -114,8 +157,19 @@ export async function POST(request: Request): Promise<Response> {
       purpose,
       scope,
       style,
+      frame,
       profile,
       colour,
+      width,
+      length,
+      height,
+      rollerDoors,
+      accessDoors,
+      windows,
+      roofInsulation,
+      wallInsulation,
+      timeline,
+      quoteGoal,
     ];
     if (required.some((value) => !value)) {
       return json({ error: "Please complete every required field." }, 400);
@@ -129,10 +183,46 @@ export async function POST(request: Request): Promise<Response> {
       !purposeLabels[purpose] ||
       !scopeLabels[scope] ||
       !styleLabels[style] ||
+      !frameLabels[frame] ||
       !profileLabels[profile] ||
-      !colourLabels[colour]
+      !colourLabels[colour] ||
+      !roofInsulationLabels[roofInsulation] ||
+      !wallInsulationLabels[wallInsulation] ||
+      !timelineLabels[timeline] ||
+      !quoteGoalLabels[quoteGoal] ||
+      !/^(?:10|[0-9])$/.test(rollerDoors) ||
+      !/^[0-5]$/.test(accessDoors) ||
+      !/^[0-5]$/.test(windows) ||
+      selectedAccessories.some((item) => !accessoryLabels[item])
     ) {
       return json({ error: "One or more project selections are invalid." }, 400);
+    }
+
+    if (
+      !validDimension(width, 1, 500) ||
+      !validDimension(length, 1, 500) ||
+      !validDimension(height, 1.8, 30)
+    ) {
+      return json(
+        { error: "Please enter valid width, length and eave-height measurements." },
+        400,
+      );
+    }
+
+    if (
+      rollerDoors !== "0" &&
+      (!rollerDoorSizeLabels[rollerDoorSize] ||
+        (rollerDoorSize === "custom" && !customRollerDoorSize))
+    ) {
+      return json({ error: "Please confirm the preferred roller-door size." }, 400);
+    }
+
+    if (
+      windows !== "0" &&
+      (!windowSizeLabels[windowSize] ||
+        (windowSize === "custom" && !customWindowSize))
+    ) {
+      return json({ error: "Please confirm the preferred window size." }, 400);
     }
 
     const bindings = env as QuoteBindings;
@@ -203,11 +293,26 @@ export async function POST(request: Request): Promise<Response> {
       dateStyle: "full",
       timeStyle: "short",
     });
-    const dimensions = [
-      width ? `Width: ${width} m` : "Width: Not supplied",
-      length ? `Length: ${length} m` : "Length: Not supplied",
-      height ? `Eave height: ${height} m` : "Eave height: Not supplied",
-    ];
+    const dimensions = `W ${width} m × L ${length} m × Eave ${height} m`;
+    const rollerDoorSummary =
+      rollerDoors === "0"
+        ? "None"
+        : `${rollerDoors} · ${
+            rollerDoorSize === "custom"
+              ? customRollerDoorSize
+              : rollerDoorSizeLabels[rollerDoorSize]
+          }`;
+    const windowSummary =
+      windows === "0"
+        ? "None"
+        : `${windows} · ${
+            windowSize === "custom"
+              ? customWindowSize
+              : windowSizeLabels[windowSize]
+          }`;
+    const accessories = selectedAccessories.length
+      ? selectedAccessories.map((item) => accessoryLabels[item]).join(", ")
+      : "None selected";
     const rows = [
       ["Reference", reference],
       ["Name", name],
@@ -217,9 +322,19 @@ export async function POST(request: Request): Promise<Response> {
       ["Project type", purposeLabels[purpose]],
       ["Project scope", scopeLabels[scope]],
       ["Building style", styleLabels[style]],
+      ["Frame system", frameLabels[frame]],
       ["Cladding profile", profileLabels[profile]],
       ["COLORBOND finish", colourLabels[colour]],
-      ["Dimensions", dimensions.join(" · ")],
+      ["Overall dimensions", dimensions],
+      ["Roller doors", rollerDoorSummary],
+      ["Personal access doors", accessDoors === "0" ? "None" : accessDoors],
+      ["Windows", windowSummary],
+      ["Roof insulation", roofInsulationLabels[roofInsulation]],
+      ["Wall insulation", wallInsulationLabels[wallInsulation]],
+      ["Accessories", accessories],
+      ["Other requirements", otherRequirements || "None supplied"],
+      ["Preferred timing", timelineLabels[timeline]],
+      ["Requested response", quoteGoalLabels[quoteGoal]],
       ["Submitted", submittedAt],
     ];
     const table = rows
@@ -250,11 +365,14 @@ export async function POST(request: Request): Promise<Response> {
         "PROJECT DETAILS",
         details || "No additional details supplied.",
         "",
+        "OPENINGS / ACCESS NOTES",
+        openingNotes || "No additional opening notes supplied.",
+        "",
         attachments.length
           ? `${attachments.length} attachment(s) included.`
           : "No attachments supplied.",
       ].join("\n"),
-      html: `<div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#071f2c"><div style="background:#071f2c;padding:24px 28px;color:#fff"><div style="font-size:12px;letter-spacing:.12em;color:#75cce8">THE SHED SHOP</div><h1 style="margin:8px 0 0;font-size:26px">New project brief</h1></div><div style="padding:26px 28px;border:1px solid #d5e2e7;border-top:0"><table style="width:100%;border-collapse:collapse">${table}</table><h2 style="margin:26px 0 10px;font-size:17px">Project details</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(details || "No additional details supplied.").replace(/\n/g, "<br>")}</p><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #d5e2e7;color:#58717c;font-size:12px">Reply to this email to contact ${escapeHtml(name)} directly.</p></div></div>`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#071f2c"><div style="background:#071f2c;padding:24px 28px;color:#fff"><div style="font-size:12px;letter-spacing:.12em;color:#75cce8">THE SHED SHOP</div><h1 style="margin:8px 0 0;font-size:26px">New project brief</h1></div><div style="padding:26px 28px;border:1px solid #d5e2e7;border-top:0"><table style="width:100%;border-collapse:collapse">${table}</table><h2 style="margin:26px 0 10px;font-size:17px">Project details</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(details || "No additional details supplied.").replace(/\n/g, "<br>")}</p><h2 style="margin:26px 0 10px;font-size:17px">Openings and access notes</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(openingNotes || "No additional opening notes supplied.").replace(/\n/g, "<br>")}</p><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #d5e2e7;color:#58717c;font-size:12px">Reply to this email to contact ${escapeHtml(name)} directly.</p></div></div>`,
       attachments: attachments.length ? attachments : undefined,
     });
 
