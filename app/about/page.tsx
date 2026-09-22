@@ -1,15 +1,40 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
+type TeamMember = {
+  name: string;
+  role: string;
+  description: string;
+  image?: string;
+};
+
+// Add or remove a person here. When a portrait is ready, add:
+// image: "/team/filename.jpg"
+const team: TeamMember[] = [
+  {
+    name: "Ash",
+    role: "Sales & Admin",
+    description:
+      "Helping customers move from their first enquiry through selections, paperwork and the next practical step.",
+  },
+  {
+    name: "Adrianna",
+    role: "Sales",
+    image: "/team/example-staff-portrait.png",
+    description:
+      "Helping customers explore their options and find the right starting point for their shed project.",
+  },
+];
+
 export const metadata: Metadata = {
   title: "About The Shed Shop",
   description:
-    "Meet the family-owned Victorian team delivering design, permits, Australian-made steel and shed construction.",
+    "Meet the local, family-owned team helping Victorian homes, farms and businesses plan and build better sheds.",
 };
 
 export default function AboutPage() {
@@ -18,101 +43,88 @@ export default function AboutPage() {
       <SiteHeader />
       <PageHero
         eyebrow="About The Shed Shop"
-        title="Local knowledge."
-        accent="Complete capability."
-        copy="A family-owned team with the technical experience, practical judgement and local relationships to carry a steel-building project from idea to handover."
+        title="Practical people."
+        accent="Personal service."
+        copy="A family-owned team in Traralgon, helping Victorian homes, farms and businesses turn a shed idea into a well-managed build."
         image="/projects/project-11.jpg"
       />
-      <section className="story shell section-space">
+
+      <section className="about-intro shell section-space">
         <div>
           <p className="eyebrow">
             <i />
-            Based in Traralgon
+            Local from the start
           </p>
-          <h2>One team from first sketch to final bolt.</h2>
+          <h2>Clear advice. One accountable team.</h2>
         </div>
         <div>
           <p>
-            The Shed Shop was built around a simple belief: buying a shed should
-            feel clear, considered and well managed. A substantial building
-            project should not leave the client coordinating designers, permit
-            specialists, concreters, suppliers and installers alone.
+            We keep shed projects straightforward. Our team listens first,
+            works through the practical details and coordinates the path from
+            concept and permits through to supply and construction.
           </p>
           <p>
-            We work with homeowners, farmers and businesses across Victoria,
-            using fully welded RHS frames or universal beams and Australian-made
-            Colorbond steel. The result is not simply a kit—it is a building
-            resolved around its purpose and site.
+            Based in Traralgon, we work with homeowners, farmers and businesses
+            across Victoria. By bringing design, engineering, approvals,
+            Australian-made materials and construction into one process, we
+            give clients a clear point of contact from the first conversation
+            to the finished building.
           </p>
           <Link className="text-action" href="/quote">
-            Talk to our team <ArrowRight />
+            Start a conversation <ArrowRight />
           </Link>
         </div>
       </section>
-      <section className="about-proof">
-        <div className="shell about-proof-grid">
-          <div className="about-proof-image">
-            <Image
-              src="/projects/project-12.jpg"
-              alt="Large Shed Shop steel project under construction"
-              fill
-              sizes="(max-width: 900px) 100vw, 54vw"
-            />
-          </div>
-          <div>
-            <p className="eyebrow light">
-              <i />
-              How we work
+
+      <section className="team-section">
+        <div className="shell section-space">
+          <div className="team-heading">
+            <div>
+              <p className="eyebrow">
+                <i />
+                Meet the team
+              </p>
+              <h2>Real people, ready to help.</h2>
+            </div>
+            <p>
+              Your first conversation is with someone local who understands the
+              process and can help you take the next step with confidence.
             </p>
-            <h2>
-              Accountability
-              <br />
-              at every stage.
-            </h2>
-            <ul>
-              {[
-                "A real person guides the project",
-                "Design decisions start with intended use",
-                "Engineering responds to the specific site",
-                "Permit requirements are resolved early",
-                "Australian-made materials are prioritised",
-                "Construction is delivered with clear responsibility",
-              ].map((item) => (
-                <li key={item}>
-                  <Check />
-                  {item}
-                </li>
-              ))}
-            </ul>
+          </div>
+
+          <div className="team-grid">
+            {team.map((member) => (
+              <article className="team-card" key={member.name}>
+                <div className="team-photo">
+                  {member.image ? (
+                    <Image
+                      src={member.image}
+                      alt={`${member.name}, ${member.role} at The Shed Shop`}
+                      fill
+                      sizes="(max-width: 700px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div
+                      className="team-photo-placeholder"
+                      role="img"
+                      aria-label={`Portrait placeholder for ${member.name}`}
+                    >
+                      <span>{member.name.charAt(0)}</span>
+                      <small>Portrait coming soon</small>
+                    </div>
+                  )}
+                </div>
+                <div className="team-card-copy">
+                  <span>{member.role}</span>
+                  <h3>{member.name}</h3>
+                  <p>{member.description}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
-      <section className="values shell section-space">
-        <article>
-          <span>01</span>
-          <h3>Practical by design</h3>
-          <p>
-            Every choice earns its place by improving use, durability or
-            delivery.
-          </p>
-        </article>
-        <article>
-          <span>02</span>
-          <h3>Clear responsibility</h3>
-          <p>
-            One experienced team can coordinate the full path instead of passing
-            the problem on.
-          </p>
-        </article>
-        <article>
-          <span>03</span>
-          <h3>Made for here</h3>
-          <p>
-            Local knowledge, Australian steel and engineering suited to
-            Victorian conditions.
-          </p>
-        </article>
-      </section>
+
       <SiteFooter />
     </main>
   );

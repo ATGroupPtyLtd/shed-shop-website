@@ -12,12 +12,44 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { purposes } from "@/lib/site-data";
 
-const purposeImages = [
-  "/projects/project-06.jpg",
-  "/projects/project-19.jpg",
-  "/projects/project-03.jpg",
-  "/projects/project-05.jpg",
-];
+const serviceEntries = [
+  {
+    ...purposes[0],
+    image: "/projects/project-06.jpg",
+    features: [
+      "Garages and secure storage",
+      "Workshops and hobby spaces",
+      "Doors, windows and insulation",
+    ],
+  },
+  {
+    ...purposes[1],
+    image: "/projects/project-19.jpg",
+    features: [
+      "Machinery and implement storage",
+      "Open-front and high-clearance access",
+      "Site-specific rural engineering",
+    ],
+  },
+  {
+    ...purposes[2],
+    image: "/projects/project-03.jpg",
+    features: [
+      "Workshops and warehouses",
+      "Large-span operational buildings",
+      "Mezzanines and future expansion",
+    ],
+  },
+  {
+    ...purposes[3],
+    image: "/projects/project-05.jpg",
+    features: [
+      "Hangars, shelters and community buildings",
+      "Non-standard forms and footprints",
+      "Architectural finishes and details",
+    ],
+  },
+] as const;
 
 export default function Home() {
   return (
@@ -36,40 +68,41 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow light">
               <i />
-              Victoria’s complete shed team
+              Family-owned. Built for Victoria.
             </p>
             <h1>
               Built for
               <br />
-              <em>what’s next.</em>
+              <em>what&apos;s next.</em>
             </h1>
             <p>
-              Design, permits, Australian-made materials and
-              construction—managed by one experienced local team.
+              From the first sketch to the final bolt, our local team makes
+              custom shed projects clear, personal and easier to manage.
             </p>
             <div className="hero-actions">
               <Link className="button primary" href="/builder">
                 Design your shed <ArrowRight />
               </Link>
-              <Link className="text-action light" href="/projects">
-                Explore completed projects <ArrowRight />
+              <Link className="text-action light" href="/#what-we-build">
+                See what we build <ArrowRight />
               </Link>
             </div>
           </div>
           <div className="hero-project">
-            <span>Featured project · Traralgon</span>
+            <span>Featured project - Traralgon</span>
             <strong>Architectural trade facility</strong>
-            <p>Custom façade · Large-span workshop · Turnkey delivery</p>
+            <p>Custom facade - Large-span workshop - Turnkey delivery</p>
           </div>
         </div>
       </section>
-      <section className="trust-strip">
+
+      <section className="trust-strip" aria-label="Why choose The Shed Shop">
         <div className="shell">
           {[
-            ["01", "Australian-made steel"],
-            ["02", "Site-specific engineering"],
-            ["03", "Permits to construction"],
-            ["04", "Family-owned in Victoria"],
+            ["01", "Family-owned in Victoria"],
+            ["02", "One team from start to finish"],
+            ["03", "Site-specific engineering"],
+            ["04", "Australian-made steel"],
           ].map(([n, label]) => (
             <div key={n}>
               <b>{n}</b>
@@ -79,54 +112,138 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="home-range shell section-space">
+      <section
+        className="home-services shell section-space"
+        id="what-we-build"
+      >
         <div className="section-heading">
           <div>
             <p className="eyebrow">
               <i />
-              Start with the job
+              What we build
             </p>
             <h2>
-              What does your shed
+              A shed with
               <br />
-              need to do?
+              a job to do.
             </h2>
           </div>
           <div>
             <p>
-              Choose the direction that best fits your site and your plans.
-              We’ll shape the structure, access, finish and approvals around the
-              real job.
+              Every project starts with how you will use it. We shape the
+              structure, access, finish and approval pathway around your site,
+              your priorities and your future plans.
             </p>
-            <Link className="text-action" href="/sheds">
-              Explore sheds & services <ArrowRight />
+            <Link className="text-action" href="/builder">
+              Explore the shed builder <ArrowRight />
             </Link>
           </div>
         </div>
-        <div className="purpose-grid">
-          {purposes.map((item, index) => (
-            <Link
-              href={`/builder?purpose=${item.id}`}
-              className="purpose-card"
-              key={item.id}
-            >
-              <Image
-                src={purposeImages[index]}
-                alt={item.title}
-                fill
-                sizes="(max-width: 720px) 100vw, 25vw"
-              />
-              <span className="purpose-shade" />
-              <span className="purpose-copy">
-                <small>{item.label}</small>
-                <strong>{item.title}</strong>
+
+        <div className="service-grid">
+          {serviceEntries.map((item, index) => (
+            <article className="service-card" key={item.id}>
+              <div className="service-card-image">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 850px) 100vw, 50vw"
+                />
+                <span>0{index + 1}</span>
+              </div>
+              <div className="service-card-copy">
+                <p className="eyebrow">
+                  <i />
+                  {item.label}
+                </p>
+                <h3>{item.title}</h3>
                 <p>{item.description}</p>
-                <i>
-                  Explore direction <ArrowRight />
-                </i>
-              </span>
-            </Link>
+                <ul>
+                  {item.features.map((feature) => (
+                    <li key={feature}>
+                      <Check />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  className="text-action"
+                  href={`/builder?purpose=${item.id}`}
+                >
+                  Start with this direction <ArrowRight />
+                </Link>
+              </div>
+            </article>
           ))}
+        </div>
+
+        <div className="service-guidance">
+          <div>
+            <span>Not sure where your project fits?</span>
+            <strong>That&apos;s exactly what we&apos;re here for.</strong>
+            <p>
+              Tell us what you need the building to do and our team will help
+              you find the right starting point.
+            </p>
+          </div>
+          <Link className="button" href="/quote">
+            Talk to our team <ArrowRight />
+          </Link>
+        </div>
+      </section>
+
+      <section className="specialist-band home-specialist">
+        <div className="shell">
+          <div className="specialist-heading">
+            <div>
+              <p className="eyebrow light">
+                <i />
+                Built beyond the shell
+              </p>
+              <h2>Capability where it counts.</h2>
+            </div>
+            <p>
+              Practical upgrades and considered finishes can be integrated into
+              residential, farm, commercial and special-purpose projects.
+            </p>
+          </div>
+          <div className="specialist-cards">
+            <article>
+              <Image
+                src="/projects/project-15.jpg"
+                alt="Engineered mezzanine floor structure"
+                fill
+                sizes="(max-width: 850px) 100vw, 50vw"
+              />
+              <span />
+              <div>
+                <small>Make more of the footprint</small>
+                <h3>Mezzanine systems</h3>
+                <p>
+                  Engineered intermediate floors for storage, offices or
+                  operational space - planned as part of the complete building.
+                </p>
+              </div>
+            </article>
+            <article>
+              <Image
+                src="/projects/project-09.jpg"
+                alt="Custom steel structure with architectural cladding"
+                fill
+                sizes="(max-width: 850px) 100vw, 50vw"
+              />
+              <span />
+              <div>
+                <small>Performance with presence</small>
+                <h3>Architectural finishes</h3>
+                <p>
+                  Contemporary cladding and considered facade treatments for a
+                  building that works hard and looks at home on your property.
+                </p>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -139,7 +256,7 @@ export default function Home() {
               fill
               sizes="(max-width: 900px) 100vw, 52vw"
             />
-            <span>720 real render combinations</span>
+            <span>20 structural concepts</span>
           </div>
           <div className="builder-feature-copy">
             <p className="eyebrow light">
@@ -147,14 +264,14 @@ export default function Home() {
               Interactive shed builder
             </p>
             <h2>
-              See your direction
+              Find your direction
               <br />
               before the drawings.
             </h2>
             <p>
-              Switch purpose, roof style, cladding profile and Colorbond finish.
-              Every choice loads a dedicated pre-rendered image—not a generic
-              colour filter.
+              Compare purpose and building form with a dedicated concept image,
+              then nominate your preferred cladding profile and COLORBOND
+              finish for your project brief.
             </p>
             <ul>
               <li>
@@ -167,11 +284,11 @@ export default function Home() {
               </li>
               <li>
                 <Check />
-                Three cladding profiles
+                Three cladding profiles to nominate
               </li>
               <li>
                 <Check />
-                Twelve Colorbond finishes
+                Twelve COLORBOND finishes to nominate
               </li>
             </ul>
             <Link className="button primary" href="/builder">
@@ -189,14 +306,15 @@ export default function Home() {
               One accountable team
             </p>
             <h2>
-              From rough idea
+              A clearer path
               <br />
-              to finished structure.
+              from idea to build.
             </h2>
           </div>
           <p>
-            We remove the hand-offs that make building stressful. The same team
-            can coordinate the complete path.
+            You should always know what happens next and who to call. Our local
+            team can coordinate the complete project, without the confusing
+            hand-offs.
           </p>
         </div>
         <div className="delivery-grid">
@@ -206,7 +324,7 @@ export default function Home() {
             <h3>Design & engineering</h3>
             <p>
               Purpose, access, structure and site conditions resolved into a
-              buildable design.
+              practical, buildable design.
             </p>
           </article>
           <article>
@@ -215,7 +333,7 @@ export default function Home() {
             <h3>Permits & approvals</h3>
             <p>
               Planning, engineering and permit requirements coordinated before
-              site work begins.
+              work begins on site.
             </p>
           </article>
           <article>
@@ -224,7 +342,7 @@ export default function Home() {
             <h3>Supply & construction</h3>
             <p>
               Australian-made materials, slab and installation delivered with
-              clear responsibility.
+              clear responsibility from start to finish.
             </p>
           </article>
         </div>
@@ -246,11 +364,11 @@ export default function Home() {
             </div>
             <div>
               <p>
-                Real structures across residential, agricultural, commercial and
-                architectural work.
+                Real structures across residential, agricultural, commercial
+                and architectural work throughout Victoria.
               </p>
               <Link className="text-action light" href="/projects">
-                View all 28 project images <ArrowRight />
+                View all 27 project images <ArrowRight />
               </Link>
             </div>
           </div>

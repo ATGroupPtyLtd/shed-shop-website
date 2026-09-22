@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { env } from "cloudflare:workers";
+import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
 import { QuoteForm } from "@/components/quote-form";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -43,6 +45,10 @@ export default async function QuotePage({
     profile: text("profile"),
     colour: text("colour"),
   };
+  const turnstileSiteKey =
+    typeof env.TURNSTILE_SITE_KEY === "string"
+      ? env.TURNSTILE_SITE_KEY
+      : "";
   return (
     <main>
       <SiteHeader />
@@ -60,9 +66,16 @@ export default async function QuotePage({
             </h1>
             <p>
               Send what you know—even if that is only the intended use and
-              location. A real person from our Traralgon team will help shape
-              the next step.
+              location. Your building style, cladding and finish give us a
+              stronger starting point for visualisation and pricing.
             </p>
+            <Link className="quote-builder-link" href="/builder">
+              <span>
+                <small>Not sure what to choose?</small>
+                Build your concept first
+              </span>
+              <ArrowRight />
+            </Link>
             <div className="contact-list">
               <a href="tel:0351778433">
                 <Phone />
@@ -90,7 +103,10 @@ export default async function QuotePage({
               </div>
             </div>
           </div>
-          <QuoteForm defaults={defaults} />
+          <QuoteForm
+            defaults={defaults}
+            turnstileSiteKey={turnstileSiteKey}
+          />
         </div>
       </section>
       <section className="faq shell section-space">

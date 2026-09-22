@@ -35,7 +35,7 @@ export function SiteFooter() {
         </div>
         <div>
           <span>Explore</span>
-          <Link href="/sheds">Sheds & services</Link>
+          <Link href="/#what-we-build">What we build</Link>
           <Link href="/projects">Project portfolio</Link>
           <Link href="/builder">Shed builder</Link>
           <Link href="/about">About us</Link>

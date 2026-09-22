@@ -7,7 +7,7 @@ import { ArrowRight, Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
 
 const links = [
-  ["Sheds & services", "/sheds"],
+  ["What we build", "/#what-we-build"],
   ["Projects", "/projects"],
   ["Shed builder", "/builder"],
   ["About", "/about"],
@@ -38,7 +38,11 @@ export function SiteHeader() {
         <nav className="desktop-nav" aria-label="Main navigation">
           {links.map(([label, href]) => (
             <Link
-              className={pathname === href ? "active" : ""}
+              className={
+                pathname === href || (pathname === "/" && href.startsWith("/#"))
+                  ? "active"
+                  : ""
+              }
               key={href}
               href={href}
             >

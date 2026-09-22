@@ -25,10 +25,7 @@ export function ShedBuilder({
     claddingProfiles.find((item) => item.id === profile) ?? claddingProfiles[0];
   const currentColour =
     colours.find((item) => item.id === colour) ?? colours[0];
-  const image =
-    profile === "corrugated"
-      ? `/concepts/${purpose}-${style}.png`
-      : `/concepts/${purpose}-${style}-${profile}.webp`;
+  const image = `/concepts/${purpose}-${style}.webp`;
 
   const reset = () => {
     setPurpose(safePurpose);
@@ -44,15 +41,15 @@ export function ShedBuilder({
           <Image
             key={image}
             src={image}
-            alt={`${currentColour.label} ${currentProfile.label} ${currentStyle.label} ${currentPurpose.title}`}
+            alt={`${currentStyle.label} concept for ${currentPurpose.title}`}
             fill
             priority
             sizes="(max-width: 980px) 100vw, 52vw"
           />
           <div className="render-status">
-            <i /> Live catalogue render
+            <i /> Structure preview
           </div>
-          <div className="render-count">60 profile concepts</div>
+          <div className="render-count">20 structural concepts</div>
           <div
             className="finish-preview"
             aria-label={`Selected finish: ${currentColour.label}`}
@@ -71,7 +68,7 @@ export function ShedBuilder({
               {currentStyle.label} {currentPurpose.title}
             </h2>
             <p>
-              {currentColour.label} · {currentProfile.label}
+              {currentProfile.label} · {currentColour.label} selected
             </p>
           </div>
           <button type="button" onClick={reset}>
@@ -79,8 +76,9 @@ export function ShedBuilder({
           </button>
         </div>
         <p className="render-disclaimer">
-          Concept visualisation only. Final scale, openings, structure, finishes
-          and engineering are confirmed in your project drawings.
+          The image previews purpose and building form. Your cladding and
+          finish selections are recorded for the project brief and confirmed in
+          the final drawings.
         </p>
       </aside>
 
@@ -116,7 +114,9 @@ export function ShedBuilder({
                 onClick={() => setStyle(item.id)}
                 key={item.id}
               >
-                <span className={`roof-icon roof-${item.id}`} />
+                <span className={`roof-icon roof-${item.id}`} aria-hidden="true">
+                  {item.id === "barn" ? <i /> : null}
+                </span>
                 <strong>{item.label}</strong>
                 <small>{item.note}</small>
               </button>

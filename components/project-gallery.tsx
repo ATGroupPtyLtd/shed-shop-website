@@ -131,10 +131,7 @@ export function ProjectGallery({ limit }: { limit?: number }) {
                 {String(visible.length).padStart(2, "0")}
               </span>
               <h2>{project.title}</h2>
-              <p>
-                A real Shed Shop project—designed around its site, intended use
-                and the people who rely on it.
-              </p>
+              <p>{project.description}</p>
             </div>
           </div>
           <button

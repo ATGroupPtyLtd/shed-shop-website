@@ -18,7 +18,7 @@ export default function ProjectsPage() {
         eyebrow="Project portfolio"
         title="Real work."
         accent="Real structures."
-        copy="Twenty-eight original images from completed buildings, interiors, fabrication and construction—because capability is better shown than claimed."
+        copy="Twenty-seven original images from completed buildings, interiors, fabrication and construction—because capability is better shown than claimed."
         image="/projects/project-12.jpg"
       />
       <section className="portfolio-page shell section-space">
