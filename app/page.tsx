@@ -288,7 +288,7 @@ export default function Home() {
               </li>
               <li>
                 <Check />
-                Twelve COLORBOND finishes to nominate
+                28 COLORBOND finishes to nominate
               </li>
             </ul>
             <Link className="button primary" href="/builder">

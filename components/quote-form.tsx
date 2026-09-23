@@ -34,7 +34,13 @@ import {
   MAX_QUOTE_FILES,
   QUOTE_FILE_ACCEPT,
 } from "@/lib/quote-files";
-import { claddingProfiles, colours, purposes, styles } from "@/lib/site-data";
+import {
+  claddingProfiles,
+  colourFinishGroups,
+  colours,
+  purposes,
+  styles,
+} from "@/lib/site-data";
 
 type Defaults = {
   purpose?: string;
@@ -556,8 +562,14 @@ export function QuoteForm({
             <Field label="COLORBOND® finish" required>
               <select name="colour" required defaultValue={defaults?.colour ?? ""}>
                 <option value="" disabled>Select one</option>
-                {colours.map((item) => (
-                  <option value={item.id} key={item.id}>{item.label}</option>
+                {colourFinishGroups.map((group) => (
+                  <optgroup label={group.label} key={group.id}>
+                    {colours
+                      .filter((item) => item.finish === group.id)
+                      .map((item) => (
+                        <option value={item.id} key={item.id}>{item.label}</option>
+                      ))}
+                  </optgroup>
                 ))}
               </select>
             </Field>

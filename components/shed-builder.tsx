@@ -4,7 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import { useState } from "react";
-import { claddingProfiles, colours, purposes, styles } from "@/lib/site-data";
+import {
+  claddingProfiles,
+  colourFinishGroups,
+  colours,
+  purposes,
+  styles,
+} from "@/lib/site-data";
 
 export function ShedBuilder({
   initialPurpose = "home",
@@ -151,19 +157,31 @@ export function ShedBuilder({
           </div>
         </BuilderStep>
         <BuilderStep number="04" title="Choose a Colorbond finish">
-          <div className="finish-options">
-            {colours.map((item) => (
-              <button
-                type="button"
-                className={colour === item.id ? "selected" : ""}
-                onClick={() => setColour(item.id)}
-                key={item.id}
-                title={item.label}
-              >
-                <i style={{ background: item.hex }} />
-                <span>{item.label}</span>
-                {colour === item.id ? <Check /> : null}
-              </button>
+          <div className="finish-groups">
+            {colourFinishGroups.map((group) => (
+              <section className="finish-group" key={group.id}>
+                <div className="finish-group-heading">
+                  <strong>{group.label}</strong>
+                  <span>{group.count} colours</span>
+                </div>
+                <div className="finish-options">
+                  {colours
+                    .filter((item) => item.finish === group.id)
+                    .map((item) => (
+                      <button
+                        type="button"
+                        className={colour === item.id ? "selected" : ""}
+                        onClick={() => setColour(item.id)}
+                        key={item.id}
+                        title={item.label}
+                      >
+                        <i style={{ background: item.hex }} />
+                        <span>{item.label}</span>
+                        {colour === item.id ? <Check /> : null}
+                      </button>
+                    ))}
+                </div>
+              </section>
             ))}
           </div>
         </BuilderStep>

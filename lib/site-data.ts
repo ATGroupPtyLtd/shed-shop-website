@@ -55,19 +55,40 @@ export const claddingProfiles = [
   },
 ] as const;
 
+export const colourFinishGroups = [
+  { id: "classic", label: "Classic finish", count: 22 },
+  { id: "matt", label: "Matt finish", count: 6 },
+] as const;
+
 export const colours = [
-  { id: "monument", label: "Monument", hex: "#323333" },
-  { id: "surfmist", label: "Surfmist", hex: "#E4E2D5" },
-  { id: "woodland-grey", label: "Woodland Grey", hex: "#4B4C46" },
-  { id: "night-sky", label: "Night Sky", hex: "#000000" },
-  { id: "shale-grey", label: "Shale Grey", hex: "#BDBFBA" },
-  { id: "basalt", label: "Basalt", hex: "#6D6C6E" },
-  { id: "dune", label: "Dune", hex: "#B1ADA3" },
-  { id: "pale-eucalypt", label: "Pale Eucalypt", hex: "#7C846A" },
-  { id: "ironstone", label: "Ironstone", hex: "#3E434C" },
-  { id: "deep-ocean", label: "Deep Ocean", hex: "#364152" },
-  { id: "manor-red", label: "Manor Red", hex: "#5E1D0E" },
-  { id: "classic-cream", label: "Classic Cream", hex: "#E9DCB8" },
+  { id: "dover-white", label: "Dover White", hex: "#F9FBF1", finish: "classic" },
+  { id: "surfmist", label: "Surfmist", hex: "#E4E2D5", finish: "classic" },
+  { id: "evening-haze", label: "Evening Haze", hex: "#C5C2AA", finish: "classic" },
+  { id: "classic-cream", label: "Classic Cream", hex: "#E9DCB8", finish: "classic" },
+  { id: "paperbark", label: "Paperbark", hex: "#CABFA4", finish: "classic" },
+  { id: "dune", label: "Dune", hex: "#B1ADA3", finish: "classic" },
+  { id: "southerly", label: "Southerly", hex: "#D2D1CB", finish: "classic" },
+  { id: "shale-grey", label: "Shale Grey", hex: "#BDBFBA", finish: "classic" },
+  { id: "bluegum", label: "Bluegum", hex: "#969799", finish: "classic" },
+  { id: "windspray", label: "Windspray", hex: "#888B8A", finish: "classic" },
+  { id: "gully", label: "Gully", hex: "#857E73", finish: "classic" },
+  { id: "jasper", label: "Jasper", hex: "#6C6153", finish: "classic" },
+  { id: "wallaby", label: "Wallaby", hex: "#7F7C78", finish: "classic" },
+  { id: "basalt", label: "Basalt", hex: "#6D6C6E", finish: "classic" },
+  { id: "woodland-grey", label: "Woodland Grey", hex: "#4B4C46", finish: "classic" },
+  { id: "monument", label: "Monument", hex: "#323233", finish: "classic" },
+  { id: "night-sky", label: "Night Sky", hex: "#000000", finish: "classic" },
+  { id: "ironstone", label: "Ironstone", hex: "#3E434C", finish: "classic" },
+  { id: "deep-ocean", label: "Deep Ocean", hex: "#364152", finish: "classic" },
+  { id: "cottage-green", label: "Cottage Green", hex: "#304C3C", finish: "classic" },
+  { id: "pale-eucalypt", label: "Pale Eucalypt", hex: "#7C846A", finish: "classic" },
+  { id: "manor-red", label: "Manor Red", hex: "#5E1D0E", finish: "classic" },
+  { id: "bluegum-matt", label: "Bluegum Matt", hex: "#969B9B", finish: "matt" },
+  { id: "shale-grey-matt", label: "Shale Grey Matt", hex: "#C6C9C4", finish: "matt" },
+  { id: "surfmist-matt", label: "Surfmist Matt", hex: "#EAE9E0", finish: "matt" },
+  { id: "monument-matt", label: "Monument Matt", hex: "#292E2A", finish: "matt" },
+  { id: "basalt-matt", label: "Basalt Matt", hex: "#5F615D", finish: "matt" },
+  { id: "dune-matt", label: "Dune Matt", hex: "#BDB3A7", finish: "matt" },
 ] as const;
 
 export const projects = [

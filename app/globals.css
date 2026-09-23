@@ -1727,6 +1727,39 @@ p {
   gap: 7px;
 }
 
+.finish-groups {
+  display: grid;
+  gap: 20px;
+}
+
+.finish-group {
+  min-width: 0;
+}
+
+.finish-group-heading {
+  margin-bottom: 9px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.finish-group-heading strong {
+  color: var(--navy);
+  font-family: var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.finish-group-heading span {
+  color: #78909b;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .finish-options button {
   min-height: 48px;
   padding: 7px;
@@ -2983,6 +3016,25 @@ p {
     height: 540px;
   }
 
+  .builder-preview {
+    display: block;
+  }
+
+  .builder-canvas {
+    grid-row: auto;
+  }
+
+  .build-readout {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .render-disclaimer {
+    padding: 16px 0 0;
+    background: transparent;
+  }
+
   .specialist-cards {
     grid-template-columns: 1fr;
   }
@@ -3204,6 +3256,24 @@ p {
     display: block;
   }
 
+  .render-status,
+  .render-count {
+    top: 14px;
+  }
+
+  .render-status {
+    left: 14px;
+  }
+
+  .render-count {
+    right: 14px;
+  }
+
+  .finish-preview {
+    right: 14px;
+    bottom: 14px;
+  }
+
   .builder-controls {
     padding: 22px 16px;
   }
@@ -3213,7 +3283,6 @@ p {
   }
 
   .purpose-options,
-  .finish-options,
   .form-grid,
   .form-grid.three,
   .conditional-fields,
@@ -3221,6 +3290,10 @@ p {
   .builder-size-grid,
   .contact-list {
     grid-template-columns: 1fr;
+  }
+
+  .finish-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dimension-heading {
