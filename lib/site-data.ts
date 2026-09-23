@@ -273,7 +273,7 @@ export const projects = [
   },
   {
     image: "/projects/project-26.jpg",
-    title: "Skillion storage shed",
+    title: "Storage shed with lean-to",
     description:
       "A simple skillion-roof storage building with an efficient form and straightforward sheltered access.",
     category: "Agricultural",
