@@ -279,6 +279,7 @@ export function QuoteForm({
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setUploadError("");
 
     const fields = Object.keys(liveValues) as LiveField[];
     setTouchedFields(Object.fromEntries(fields.map((field) => [field, true])));
@@ -307,11 +308,18 @@ export function QuoteForm({
         method: "POST",
         body: formData,
       });
-      const result = (await response.json()) as {
+      const result: {
         error?: string;
         reference?: string;
-      };
+      } = response.headers.get("content-type")?.includes("application/json")
+        ? await response.json()
+        : {};
       if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error(
+            "Your attachments are too large. Please keep their combined total to 4 MB or less.",
+          );
+        }
         throw new Error(result.error || "Your project brief could not be sent.");
       }
       setReference(result.reference ?? "RECEIVED");
