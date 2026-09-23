@@ -1,8 +1,21 @@
 "use client";
 
-import { ArrowRight, Check } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  FileText,
+  LoaderCircle,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import Script from "next/script";
-import { type FormEvent, useState } from "react";
+import {
+  type DragEvent,
+  type FormEvent,
+  type KeyboardEvent,
+  useRef,
+  useState,
+} from "react";
 import {
   accessoryOptions,
   buildTimelines,
@@ -15,6 +28,12 @@ import {
   wallInsulationOptions,
   windowSizes,
 } from "@/lib/quote-options";
+import {
+  isAllowedQuoteFile,
+  MAX_QUOTE_FILE_BYTES,
+  MAX_QUOTE_FILES,
+  QUOTE_FILE_ACCEPT,
+} from "@/lib/quote-files";
 import { claddingProfiles, colours, purposes, styles } from "@/lib/site-data";
 
 type Defaults = {
@@ -30,6 +49,17 @@ type Defaults = {
 type TurnstileWindow = Window & {
   turnstile?: { reset: () => void };
 };
+
+type LiveField =
+  | "name"
+  | "phone"
+  | "email"
+  | "location"
+  | "width"
+  | "length"
+  | "height";
+
+type LiveValues = Record<LiveField, string>;
 
 const purposeLabels = Object.fromEntries(
   purposes.map((item) => [item.id, item.title]),
@@ -47,6 +77,71 @@ const colourLabels = Object.fromEntries(
 const openingQuantities = quantityOptions(10);
 const smallQuantities = quantityOptions(5);
 
+function fileKey(file: File): string {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.ceil(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function sanitisePhone(value: string): string {
+  const allowed = value.replace(/[^\d+()\-\s]/g, "");
+  const leadingPlus = allowed.startsWith("+") ? "+" : "";
+  return `${leadingPlus}${allowed.replace(/\+/g, "")}`
+    .replace(/\s{2,}/g, " ")
+    .slice(0, 24);
+}
+
+function validateLiveField(field: LiveField, value: string): string {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return field === "height"
+      ? "Enter the approximate eave height."
+      : field === "width" || field === "length"
+        ? `Enter the shed ${field}.`
+        : `Enter your ${field === "location" ? "project location" : field}.`;
+  }
+
+  if (field === "name") {
+    return trimmed.length >= 2 && /\p{L}/u.test(trimmed)
+      ? ""
+      : "Enter a name using at least two characters.";
+  }
+
+  if (field === "phone") {
+    const digits = trimmed.replace(/\D/g, "");
+    return /^\+?[\d\s()\-]+$/.test(trimmed) && digits.length >= 8 && digits.length <= 15
+      ? ""
+      : "Enter a valid phone number with 8–15 digits.";
+  }
+
+  if (field === "email") {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)
+      ? ""
+      : "Enter a complete email address, such as name@example.com.";
+  }
+
+  if (field === "location") {
+    return trimmed.length >= 2
+      ? ""
+      : "Enter a suburb, town or project location.";
+  }
+
+  const measurement = Number(trimmed);
+  if (!Number.isFinite(measurement)) return "Enter a valid measurement.";
+  if ((field === "width" || field === "length") && (measurement < 1 || measurement > 500)) {
+    return "Enter a measurement between 1 and 500 metres.";
+  }
+  if (field === "height" && (measurement < 1.8 || measurement > 30)) {
+    return "Enter an eave height between 1.8 and 30 metres.";
+  }
+  return "";
+}
+
 export function QuoteForm({
   defaults,
   turnstileSiteKey,
@@ -54,14 +149,37 @@ export function QuoteForm({
   defaults?: Defaults;
   turnstileSiteKey: string;
 }) {
+  const initialLiveValues = (): LiveValues => ({
+    name: "",
+    phone: "",
+    email: "",
+    location: "",
+    width: defaults?.width ?? "",
+    length: defaults?.length ?? "",
+    height: defaults?.height ?? "",
+  });
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
   const [reference, setReference] = useState("");
-  const [fileNames, setFileNames] = useState<string[]>([]);
+  const [liveValues, setLiveValues] = useState<LiveValues>(initialLiveValues);
+  const [touchedFields, setTouchedFields] = useState<
+    Partial<Record<LiveField, boolean>>
+  >({});
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState("");
+  const [isDraggingFiles, setIsDraggingFiles] = useState(false);
   const [rollerDoors, setRollerDoors] = useState("0");
   const [rollerDoorSize, setRollerDoorSize] = useState("unsure");
   const [windows, setWindows] = useState("0");
   const [windowSize, setWindowSize] = useState("unsure");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
+  const liveErrors = Object.fromEntries(
+    (Object.keys(liveValues) as LiveField[]).map((field) => [
+      field,
+      validateLiveField(field, liveValues[field]),
+    ]),
+  ) as Record<LiveField, string>;
   const turnstileReady =
     Boolean(turnstileSiteKey) &&
     !turnstileSiteKey.startsWith("REPLACE_WITH_");
@@ -78,15 +196,116 @@ export function QuoteForm({
   const resetTurnstile = () =>
     (window as TurnstileWindow).turnstile?.reset();
 
+  const visibleError = (field: LiveField) =>
+    touchedFields[field] || liveValues[field] ? liveErrors[field] : "";
+
+  const updateLiveField = (field: LiveField, rawValue: string) => {
+    const value = field === "phone" ? sanitisePhone(rawValue) : rawValue;
+    setLiveValues((current) => ({ ...current, [field]: value }));
+    setTouchedFields((current) => ({ ...current, [field]: true }));
+    if (error) setError("");
+  };
+
+  const addFiles = (incomingFiles: File[]) => {
+    if (status === "sending" || !incomingFiles.length) return;
+
+    const selectedKeys = new Set(selectedFiles.map(fileKey));
+    const newFiles = incomingFiles.filter(
+      (file) => !selectedKeys.has(fileKey(file)),
+    );
+
+    if (!newFiles.length) {
+      setUploadError("That file is already attached.");
+      return;
+    }
+
+    const invalidFile = newFiles.find(
+      (file) => !file.size || !isAllowedQuoteFile(file.name),
+    );
+    if (invalidFile) {
+      setUploadError(
+        `${invalidFile.name} is not a supported PDF, PNG, JPG or Word file.`,
+      );
+      return;
+    }
+
+    const nextFiles = [...selectedFiles, ...newFiles];
+    if (nextFiles.length > MAX_QUOTE_FILES) {
+      setUploadError(`You can attach up to ${MAX_QUOTE_FILES} files.`);
+      return;
+    }
+
+    const totalBytes = nextFiles.reduce((total, file) => total + file.size, 0);
+    if (totalBytes > MAX_QUOTE_FILE_BYTES) {
+      setUploadError("Attachments must total 4 MB or less.");
+      return;
+    }
+
+    setSelectedFiles(nextFiles);
+    setUploadError("");
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((files) => files.filter((_, itemIndex) => itemIndex !== index));
+    setUploadError("");
+  };
+
+  const handleFileDragEnter = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    dragDepth.current += 1;
+    setIsDraggingFiles(true);
+  };
+
+  const handleFileDragLeave = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (!dragDepth.current) setIsDraggingFiles(false);
+  };
+
+  const handleFileDrop = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    dragDepth.current = 0;
+    setIsDraggingFiles(false);
+    addFiles(Array.from(event.dataTransfer.files));
+  };
+
+  const handleUploadKeyDown = (event: KeyboardEvent<HTMLLabelElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      fileInputRef.current?.click();
+    }
+  };
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStatus("sending");
     setError("");
 
+    const fields = Object.keys(liveValues) as LiveField[];
+    setTouchedFields(Object.fromEntries(fields.map((field) => [field, true])));
+    const firstInvalidField = fields.find((field) => liveErrors[field]);
+    if (firstInvalidField) {
+      setError("Please correct the highlighted details before sending your brief.");
+      window.setTimeout(
+        () => document.getElementById(`quote-${firstInvalidField}`)?.focus(),
+        0,
+      );
+      return;
+    }
+
+    if (!event.currentTarget.checkValidity()) {
+      setError("Please complete the remaining required fields before continuing.");
+      event.currentTarget.reportValidity();
+      return;
+    }
+
+    setStatus("sending");
+
     try {
+      const formData = new FormData(event.currentTarget);
+      selectedFiles.forEach((file) => formData.append("files", file, file.name));
       const response = await fetch("/api/quote", {
         method: "POST",
-        body: new FormData(event.currentTarget),
+        body: formData,
       });
       const result = (await response.json()) as {
         error?: string;
@@ -115,7 +334,7 @@ export function QuoteForm({
         <span>Project brief received · {reference}</span>
         <h2>Thanks—we’ll take it from here.</h2>
         <p>
-          Your brief has been emailed to our Traralgon team. We’ll review the
+          Your brief has been emailed to our team. We’ll review the
           details and contact you about the next practical step.
         </p>
         <button
@@ -123,6 +342,15 @@ export function QuoteForm({
           onClick={() => {
             setStatus("idle");
             setReference("");
+            setSelectedFiles([]);
+            setUploadError("");
+            setLiveValues(initialLiveValues());
+            setTouchedFields({});
+            setError("");
+            setRollerDoors("0");
+            setRollerDoorSize("unsure");
+            setWindows("0");
+            setWindowSize("unsure");
             window.setTimeout(resetTurnstile, 0);
           }}
         >
@@ -140,7 +368,12 @@ export function QuoteForm({
           strategy="afterInteractive"
         />
       ) : null}
-      <form className="quote-form" onSubmit={submit}>
+      <form
+        className="quote-form"
+        onSubmit={submit}
+        aria-busy={status === "sending"}
+        noValidate
+      >
         <div className="form-head">
           <span>PROJECT BRIEF</span>
           <strong>About 5 minutes · * Required</strong>
@@ -164,39 +397,100 @@ export function QuoteForm({
           note="Where should we send the quote and where is the project?"
         >
           <div className="form-grid">
-            <Field label="Your name" required>
+            <Field
+              label="Your name"
+              required
+              error={visibleError("name")}
+              errorId="quote-name-error"
+            >
               <input
+                id="quote-name"
                 name="name"
                 required
                 autoComplete="name"
+                maxLength={100}
+                value={liveValues.name}
+                onChange={(event) => updateLiveField("name", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, name: true }))
+                }
+                aria-invalid={Boolean(visibleError("name"))}
+                aria-describedby={visibleError("name") ? "quote-name-error" : undefined}
                 placeholder="e.g. Matthew Smith"
               />
             </Field>
-            <Field label="Phone" required>
+            <Field
+              label="Phone"
+              required
+              hint="Numbers, spaces, brackets, hyphens and a leading + are accepted."
+              hintId="quote-phone-hint"
+              error={visibleError("phone")}
+              errorId="quote-phone-error"
+            >
               <input
+                id="quote-phone"
                 name="phone"
                 type="tel"
                 required
                 autoComplete="tel"
+                inputMode="tel"
+                maxLength={24}
+                value={liveValues.phone}
+                onChange={(event) => updateLiveField("phone", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, phone: true }))
+                }
+                aria-invalid={Boolean(visibleError("phone"))}
+                aria-describedby={`quote-phone-hint${visibleError("phone") ? " quote-phone-error" : ""}`}
                 placeholder="04xx xxx xxx"
               />
             </Field>
           </div>
           <div className="form-grid">
-            <Field label="Email" required>
+            <Field
+              label="Email"
+              required
+              error={visibleError("email")}
+              errorId="quote-email-error"
+            >
               <input
+                id="quote-email"
                 name="email"
                 type="email"
                 required
                 autoComplete="email"
+                maxLength={254}
+                value={liveValues.email}
+                onChange={(event) => updateLiveField("email", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, email: true }))
+                }
+                aria-invalid={Boolean(visibleError("email"))}
+                aria-describedby={visibleError("email") ? "quote-email-error" : undefined}
                 placeholder="you@example.com"
               />
             </Field>
-            <Field label="Project location" required hint="Suburb and postcode is enough for now.">
+            <Field
+              label="Project location"
+              required
+              hint="Suburb and postcode is enough for now."
+              hintId="quote-location-hint"
+              error={visibleError("location")}
+              errorId="quote-location-error"
+            >
               <input
+                id="quote-location"
                 name="location"
                 required
                 autoComplete="address-level2"
+                maxLength={150}
+                value={liveValues.location}
+                onChange={(event) => updateLiveField("location", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, location: true }))
+                }
+                aria-invalid={Boolean(visibleError("location"))}
+                aria-describedby={`quote-location-hint${visibleError("location") ? " quote-location-error" : ""}`}
                 placeholder="e.g. Traralgon VIC 3844"
               />
             </Field>
@@ -265,39 +559,78 @@ export function QuoteForm({
             <span>Use approximate measurements if the final size is not confirmed.</span>
           </div>
           <div className="form-grid three">
-            <Field label="Width" required>
+            <Field
+              label="Width"
+              required
+              error={visibleError("width")}
+              errorId="quote-width-error"
+            >
               <input
+                id="quote-width"
                 name="width"
                 type="number"
                 required
                 min="1"
                 max="500"
                 step="0.1"
-                defaultValue={defaults?.width}
+                inputMode="decimal"
+                value={liveValues.width}
+                onChange={(event) => updateLiveField("width", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, width: true }))
+                }
+                aria-invalid={Boolean(visibleError("width"))}
+                aria-describedby={visibleError("width") ? "quote-width-error" : undefined}
                 placeholder="e.g. 9"
               />
             </Field>
-            <Field label="Length" required>
+            <Field
+              label="Length"
+              required
+              error={visibleError("length")}
+              errorId="quote-length-error"
+            >
               <input
+                id="quote-length"
                 name="length"
                 type="number"
                 required
                 min="1"
                 max="500"
                 step="0.1"
-                defaultValue={defaults?.length}
+                inputMode="decimal"
+                value={liveValues.length}
+                onChange={(event) => updateLiveField("length", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, length: true }))
+                }
+                aria-invalid={Boolean(visibleError("length"))}
+                aria-describedby={visibleError("length") ? "quote-length-error" : undefined}
                 placeholder="e.g. 15"
               />
             </Field>
-            <Field label="Eave height" required>
+            <Field
+              label="Eave height"
+              required
+              error={visibleError("height")}
+              errorId="quote-height-error"
+            >
               <input
+                id="quote-height"
                 name="height"
                 type="number"
                 required
                 min="1.8"
                 max="30"
                 step="0.1"
-                defaultValue={defaults?.height}
+                inputMode="decimal"
+                value={liveValues.height}
+                onChange={(event) => updateLiveField("height", event.target.value)}
+                onBlur={() =>
+                  setTouchedFields((current) => ({ ...current, height: true }))
+                }
+                aria-invalid={Boolean(visibleError("height"))}
+                aria-describedby={visibleError("height") ? "quote-height-error" : undefined}
                 placeholder="e.g. 3.6"
               />
             </Field>
@@ -359,6 +692,8 @@ export function QuoteForm({
                   <input
                     name="customRollerDoorSize"
                     required
+                    minLength={2}
+                    maxLength={250}
                     placeholder="e.g. 2 at 4.0 W × 4.5 H, 1 at 3.0 W × 3.0 H"
                   />
                 </Field>
@@ -383,6 +718,8 @@ export function QuoteForm({
                   <input
                     name="customWindowSize"
                     required
+                    minLength={2}
+                    maxLength={250}
                     placeholder="List the sizes or describe what you need"
                   />
                 </Field>
@@ -393,6 +730,7 @@ export function QuoteForm({
             <textarea
               name="openingNotes"
               rows={3}
+              maxLength={1500}
               placeholder="e.g. Roller doors along the front, with drive-through access at the rear."
             />
           </Field>
@@ -434,6 +772,7 @@ export function QuoteForm({
           <Field label="Other requirements">
             <input
               name="otherRequirements"
+              maxLength={1000}
               placeholder="e.g. gutters, downpipes, internal partitions or special access"
             />
           </Field>
@@ -464,31 +803,83 @@ export function QuoteForm({
             <textarea
               name="details"
               rows={5}
+              maxLength={5000}
               placeholder="Intended use, site conditions, must-haves, approval status—or anything you would like us to work through with you."
             />
           </Field>
-          <label className="file-field">
-            Plans, sketches or site photos
-            <input
-              name="files"
-              type="file"
-              multiple
-              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-              onChange={(event) =>
-                setFileNames(
-                  Array.from(event.currentTarget.files ?? []).map(
-                    (file) => file.name,
-                  ),
-                )
-              }
-            />
-            <span>Choose files</span>
-            <small>
-              {fileNames.length
-                ? fileNames.join(", ")
-                : "Up to 3 PDF, PNG, JPG or Word files · 4 MB total"}
-            </small>
-          </label>
+          <div className="upload-field">
+            <div className="upload-label">Plans, sketches or site photos</div>
+            <label
+              className={`file-dropzone${isDraggingFiles ? " is-dragging" : ""}${status === "sending" ? " is-disabled" : ""}`}
+              onDragEnter={handleFileDragEnter}
+              onDragOver={(event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "copy";
+              }}
+              onDragLeave={handleFileDragLeave}
+              onDrop={handleFileDrop}
+              onKeyDown={handleUploadKeyDown}
+              tabIndex={status === "sending" ? -1 : 0}
+              aria-disabled={status === "sending"}
+              aria-describedby="quote-file-limits"
+            >
+              <input
+                ref={fileInputRef}
+                className="file-input"
+                type="file"
+                tabIndex={-1}
+                multiple
+                accept={QUOTE_FILE_ACCEPT}
+                disabled={status === "sending"}
+                onChange={(event) => {
+                  addFiles(Array.from(event.currentTarget.files ?? []));
+                  event.currentTarget.value = "";
+                }}
+              />
+              <span className="upload-icon" aria-hidden="true">
+                <UploadCloud />
+              </span>
+              <span className="upload-copy">
+                <strong>Drop files here</strong>
+                <small>or select them from your device</small>
+              </span>
+              <span className="upload-action">
+                {selectedFiles.length ? "Add more files" : "Choose files"}
+              </span>
+            </label>
+            <div className="upload-meta" id="quote-file-limits">
+              <span>PDF, PNG, JPG or Word</span>
+              <span>
+                {selectedFiles.length} of {MAX_QUOTE_FILES} files · {formatFileSize(
+                  selectedFiles.reduce((total, file) => total + file.size, 0),
+                )} of 4 MB
+              </span>
+            </div>
+            {selectedFiles.length ? (
+              <ul className="selected-files" aria-label="Selected attachments">
+                {selectedFiles.map((file, index) => (
+                  <li key={fileKey(file)}>
+                    <FileText aria-hidden="true" />
+                    <span>
+                      <strong>{file.name}</strong>
+                      <small>{formatFileSize(file.size)}</small>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      disabled={status === "sending"}
+                      aria-label={`Remove ${file.name}`}
+                    >
+                      <X aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {uploadError ? (
+              <p className="upload-error" role="alert">{uploadError}</p>
+            ) : null}
+          </div>
         </FormSection>
 
         <div className="turnstile-area">
@@ -518,8 +909,12 @@ export function QuoteForm({
             type="submit"
             disabled={status === "sending" || !turnstileReady}
           >
-            {status === "sending" ? "Sending brief…" : "Send project brief"}
-            <ArrowRight />
+            {status === "sending" ? "Sending securely…" : "Send project brief"}
+            {status === "sending" ? (
+              <LoaderCircle className="submit-spinner" />
+            ) : (
+              <ArrowRight />
+            )}
           </button>
         </div>
       </form>
@@ -555,19 +950,30 @@ function FormSection({
 function Field({
   label,
   hint,
+  hintId,
   required = false,
+  error,
+  errorId,
   children,
 }: {
   label: string;
   hint?: string;
+  hintId?: string;
   required?: boolean;
+  error?: string;
+  errorId?: string;
   children: React.ReactNode;
 }) {
   return (
     <label>
       {label}{required ? " *" : ""}
       {children}
-      {hint ? <small className="field-hint">{hint}</small> : null}
+      {hint ? <small className="field-hint" id={hintId}>{hint}</small> : null}
+      {error ? (
+        <small className="field-error" id={errorId} role="alert">
+          {error}
+        </small>
+      ) : null}
     </label>
   );
 }

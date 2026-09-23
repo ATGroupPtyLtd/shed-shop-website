@@ -10,13 +10,18 @@ import {
   wallInsulationOptions,
   windowSizes,
 } from "@/lib/quote-options";
+import { renderQuoteEmail, type QuoteEmailSection } from "@/lib/quote-email";
+import {
+  isAllowedQuoteFile,
+  MAX_QUOTE_FILE_BYTES,
+  MAX_QUOTE_FILES,
+} from "@/lib/quote-files";
 import { claddingProfiles, colours, purposes, styles } from "@/lib/site-data";
 
 const QUOTE_TO = "admin@shed-shop.com.au";
 const QUOTE_FROM = "website@shed-shop.com.au";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
-const MAX_FILE_BYTES = 4 * 1024 * 1024;
-const MAX_FILES = 3;
+const MAX_REQUEST_BYTES = 6 * 1024 * 1024;
 
 type EmailAttachment = {
   content: string;
@@ -52,6 +57,9 @@ const profileLabels = Object.fromEntries(
 const colourLabels = Object.fromEntries(
   colours.map((item) => [item.id, item.label]),
 ) as Record<string, string>;
+const colourHexes = Object.fromEntries(
+  colours.map((item) => [item.id, item.hex]),
+) as Record<string, string>;
 const labels = (items: readonly { id: string; label: string }[]) =>
   Object.fromEntries(items.map((item) => [item.id, item.label])) as Record<
     string,
@@ -70,20 +78,6 @@ const quoteGoalLabels = labels(quoteGoals);
 function text(form: FormData, name: string, maxLength = 200): string {
   const value = form.get(name);
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(
-    /[&<>'"]/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "'": "&#39;",
-        '"': "&quot;",
-      })[character] ?? character,
-  );
 }
 
 function cleanFilename(value: string): string {
@@ -110,6 +104,15 @@ function validDimension(value: string, minimum: number, maximum: number): boolea
   return Number.isFinite(measurement) && measurement >= minimum && measurement <= maximum;
 }
 
+function validPhone(value: string): boolean {
+  const digits = value.replace(/\D/g, "");
+  return (
+    /^\+?[\d\s()\-]+$/.test(value) &&
+    digits.length >= 8 &&
+    digits.length <= 15
+  );
+}
+
 function json(
   body: object,
   status = 200,
@@ -126,6 +129,14 @@ export async function POST(request: Request): Promise<Response> {
     const requestUrl = new URL(request.url);
     if (request.headers.get("Origin") !== requestUrl.origin) {
       return json({ error: "This request was not accepted." }, 403);
+    }
+
+    const contentLength = Number(request.headers.get("Content-Length") ?? 0);
+    if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
+      return json(
+        { error: "The project brief is too large. Please reduce the attachments." },
+        413,
+      );
     }
 
     const bindings = env as QuoteBindings;
@@ -214,8 +225,23 @@ export async function POST(request: Request): Promise<Response> {
       return json({ error: "Please complete every required field." }, 400);
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    if (name.length < 2 || !/\p{L}/u.test(name)) {
+      return json({ error: "Please enter a valid name." }, 400);
+    }
+
+    if (!validPhone(phone)) {
+      return json(
+        { error: "Please enter a valid phone number with 8–15 digits." },
+        400,
+      );
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(customerEmail)) {
       return json({ error: "Please enter a valid email address." }, 400);
+    }
+
+    if (location.length < 2) {
+      return json({ error: "Please enter a valid project location." }, 400);
     }
 
     if (
@@ -302,16 +328,18 @@ export async function POST(request: Request): Promise<Response> {
     const files = form
       .getAll("files")
       .filter((entry): entry is File => entry instanceof File && entry.size > 0);
-    if (files.length > MAX_FILES) {
-      return json({ error: `Please attach no more than ${MAX_FILES} files.` }, 400);
+    if (files.length > MAX_QUOTE_FILES) {
+      return json(
+        { error: `Please attach no more than ${MAX_QUOTE_FILES} files.` },
+        400,
+      );
     }
     const totalBytes = files.reduce((total, file) => total + file.size, 0);
-    if (totalBytes > MAX_FILE_BYTES) {
+    if (totalBytes > MAX_QUOTE_FILE_BYTES) {
       return json({ error: "Attachments must total 4 MB or less." }, 400);
     }
 
-    const allowedExtensions = /\.(pdf|png|jpe?g|docx?)$/i;
-    if (files.some((file) => !allowedExtensions.test(file.name))) {
+    if (files.some((file) => !isAllowedQuoteFile(file.name))) {
       return json(
         { error: "Attachments must be PDF, PNG, JPG or Word documents." },
         400,
@@ -351,42 +379,87 @@ export async function POST(request: Request): Promise<Response> {
     const accessories = selectedAccessories.length
       ? selectedAccessories.map((item) => accessoryLabels[item]).join(", ")
       : "None selected";
-    const rows = [
-      ["Reference", reference],
-      ["Name", name],
-      ["Phone", phone],
-      ["Email", customerEmail],
-      ["Location", location],
-      ["Project type", purposeLabels[purpose]],
-      ["Project scope", scopeLabels[scope]],
-      ["Building style", styleLabels[style]],
-      ["Frame system", frameLabels[frame]],
-      ["Cladding profile", profileLabels[profile]],
-      ["COLORBOND finish", colourLabels[colour]],
-      ["Overall dimensions", dimensions],
-      ["Roller doors", rollerDoorSummary],
-      ["Personal access doors", accessDoors === "0" ? "None" : accessDoors],
-      ["Windows", windowSummary],
-      ["Roof insulation", roofInsulationLabels[roofInsulation]],
-      ["Wall insulation", wallInsulationLabels[wallInsulation]],
-      ["Accessories", accessories],
-      ["Other requirements", otherRequirements || "None supplied"],
-      ["Preferred timing", timelineLabels[timeline]],
-      ["Requested response", quoteGoalLabels[quoteGoal]],
-      ["Submitted", submittedAt],
-    ];
-    const table = rows
-      .map(
-        ([label, value]) =>
-          `<tr><th style="padding:8px 14px 8px 0;text-align:left;vertical-align:top;color:#58717c">${escapeHtml(label)}</th><td style="padding:8px 0;color:#071f2c">${escapeHtml(value)}</td></tr>`,
-      )
-      .join("");
     const attachments = await Promise.all(
       files.map(async (file): Promise<EmailAttachment> => ({
         content: arrayBufferToBase64(await file.arrayBuffer()),
         filename: cleanFilename(file.name),
       })),
     );
+    const emailSections: QuoteEmailSection[] = [
+      {
+        number: "01",
+        title: "Customer & site",
+        rows: [
+          { label: "Name", value: name },
+          {
+            label: "Phone",
+            value: phone,
+            href: `tel:${phone.replace(/[^\d+]/g, "")}`,
+          },
+          { label: "Email", value: customerEmail, href: `mailto:${customerEmail}` },
+          { label: "Project location", value: location },
+        ],
+      },
+      {
+        number: "02",
+        title: "Building configuration",
+        rows: [
+          { label: "Project type", value: purposeLabels[purpose] },
+          { label: "Project scope", value: scopeLabels[scope] },
+          { label: "Building style", value: styleLabels[style] },
+          { label: "Frame system", value: frameLabels[frame] },
+          { label: "Cladding profile", value: profileLabels[profile] },
+          {
+            label: "COLORBOND finish",
+            value: colourLabels[colour],
+            swatch: colourHexes[colour],
+          },
+          { label: "Overall dimensions", value: dimensions },
+        ],
+      },
+      {
+        number: "03",
+        title: "Openings & access",
+        rows: [
+          { label: "Roller doors", value: rollerDoorSummary },
+          {
+            label: "Personal access doors",
+            value: accessDoors === "0" ? "None" : accessDoors,
+          },
+          { label: "Windows", value: windowSummary },
+        ],
+      },
+      {
+        number: "04",
+        title: "Comfort & project timing",
+        rows: [
+          { label: "Roof insulation", value: roofInsulationLabels[roofInsulation] },
+          { label: "Wall insulation", value: wallInsulationLabels[wallInsulation] },
+          { label: "Accessories", value: accessories },
+          {
+            label: "Other requirements",
+            value: otherRequirements || "None supplied",
+          },
+          { label: "Preferred timing", value: timelineLabels[timeline] },
+          { label: "Requested response", value: quoteGoalLabels[quoteGoal] },
+        ],
+      },
+    ];
+    const email = renderQuoteEmail({
+      reference,
+      submittedAt,
+      name,
+      customerEmail,
+      location,
+      projectType: purposeLabels[purpose],
+      dimensions,
+      buildingStyle: styleLabels[style],
+      requestedResponse: quoteGoalLabels[quoteGoal],
+      sections: emailSections,
+      projectDetails: details || "No additional details supplied.",
+      openingNotes: openingNotes || "No additional opening notes supplied.",
+      attachmentNames: attachments.map((attachment) => attachment.filename),
+    });
 
     const resendResponse = await fetch(RESEND_ENDPOINT, {
       method: "POST",
@@ -399,23 +472,9 @@ export async function POST(request: Request): Promise<Response> {
         from: `The Shed Shop Website <${QUOTE_FROM}>`,
         to: [QUOTE_TO],
         reply_to: customerEmail,
-        subject: `New quote ${reference} — ${purposeLabels[purpose]} — ${location}`,
-        text: [
-          "NEW WEBSITE PROJECT BRIEF",
-          "",
-          ...rows.map(([label, value]) => `${label}: ${value}`),
-          "",
-          "PROJECT DETAILS",
-          details || "No additional details supplied.",
-          "",
-          "OPENINGS / ACCESS NOTES",
-          openingNotes || "No additional opening notes supplied.",
-          "",
-          attachments.length
-            ? `${attachments.length} attachment(s) included.`
-            : "No attachments supplied.",
-        ].join("\n"),
-        html: `<div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#071f2c"><div style="background:#071f2c;padding:24px 28px;color:#fff"><div style="font-size:12px;letter-spacing:.12em;color:#75cce8">THE SHED SHOP</div><h1 style="margin:8px 0 0;font-size:26px">New project brief</h1></div><div style="padding:26px 28px;border:1px solid #d5e2e7;border-top:0"><table style="width:100%;border-collapse:collapse">${table}</table><h2 style="margin:26px 0 10px;font-size:17px">Project details</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(details || "No additional details supplied.").replace(/\n/g, "<br>")}</p><h2 style="margin:26px 0 10px;font-size:17px">Openings and access notes</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(openingNotes || "No additional opening notes supplied.").replace(/\n/g, "<br>")}</p><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #d5e2e7;color:#58717c;font-size:12px">Reply to this email to contact ${escapeHtml(name)} directly.</p></div></div>`,
+        subject: `Project brief ${reference} — ${purposeLabels[purpose]} — ${location}`,
+        text: email.text,
+        html: email.html,
         attachments: attachments.length ? attachments : undefined,
         tags: [
           { name: "source", value: "website-quote" },
