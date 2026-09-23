@@ -3,20 +3,38 @@
   "name": "shed-shop-website",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-05-22",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "assets": {
     "binding": "ASSETS",
-    "not_found_handling": "none",
+    "not_found_handling": "none"
   },
   "vars": {
-    // Replace this value with the site key from your Cloudflare Turnstile widget.
-    "TURNSTILE_SITE_KEY": "REPLACE_WITH_YOUR_TURNSTILE_SITE_KEY",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFAmwiS02a6R_4xv"
   },
-  "send_email": [
+  "secrets": {
+    "required": [
+      "RESEND_API_KEY",
+      "TURNSTILE_SECRET"
+    ],
+  },
+  "ratelimits": [
     {
-      "name": "QUOTE_EMAIL",
-      "destination_address": "admin@shed-shop.com.au",
-      "allowed_sender_addresses": ["website@shed-shop.com.au"],
+      "name": "QUOTE_RATE_LIMITER",
+      "namespace_id": "4170101",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      },
+    },
+    {
+      "name": "QUOTE_GLOBAL_RATE_LIMITER",
+      "namespace_id": "4170102",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      },
     },
   ],
   "observability": {

@@ -1,0 +1,4 @@
+# Copy this file to .dev.vars only if you need local form testing.
+# Never commit the real values.
+RESEND_API_KEY=re_replace_with_your_resend_api_key
+TURNSTILE_SECRET=replace_with_your_turnstile_secret

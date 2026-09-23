@@ -14,28 +14,23 @@ import { claddingProfiles, colours, purposes, styles } from "@/lib/site-data";
 
 const QUOTE_TO = "admin@shed-shop.com.au";
 const QUOTE_FROM = "website@shed-shop.com.au";
+const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const MAX_FILE_BYTES = 4 * 1024 * 1024;
 const MAX_FILES = 3;
 
 type EmailAttachment = {
-  content: ArrayBuffer;
+  content: string;
   filename: string;
-  type: string;
-  disposition: "attachment";
+};
+
+type RateLimitBinding = {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
 };
 
 type QuoteBindings = {
-  QUOTE_EMAIL?: {
-    send(message: {
-      to: string;
-      from: { email: string; name: string };
-      replyTo: { email: string; name: string };
-      subject: string;
-      html: string;
-      text: string;
-      attachments?: EmailAttachment[];
-    }): Promise<{ messageId: string }>;
-  };
+  RESEND_API_KEY?: string;
+  QUOTE_RATE_LIMITER?: RateLimitBinding;
+  QUOTE_GLOBAL_RATE_LIMITER?: RateLimitBinding;
   TURNSTILE_SECRET?: string;
 };
 
@@ -95,21 +90,65 @@ function cleanFilename(value: string): string {
   return value.replace(/[^a-zA-Z0-9._ -]/g, "_").slice(0, 120);
 }
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunks: string[] = [];
+  const chunkSize = 0x8000;
+
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    chunks.push(
+      String.fromCharCode(...bytes.subarray(offset, offset + chunkSize)),
+    );
+  }
+
+  return btoa(chunks.join(""));
+}
+
 function validDimension(value: string, minimum: number, maximum: number): boolean {
   if (!/^\d+(?:\.\d+)?$/.test(value)) return false;
   const measurement = Number(value);
   return Number.isFinite(measurement) && measurement >= minimum && measurement <= maximum;
 }
 
-function json(body: object, status = 200): Response {
+function json(
+  body: object,
+  status = 200,
+  extraHeaders: HeadersInit = {},
+): Response {
   return Response.json(body, {
     status,
-    headers: { "Cache-Control": "no-store" },
+    headers: { "Cache-Control": "no-store", ...extraHeaders },
   });
 }
 
 export async function POST(request: Request): Promise<Response> {
   try {
+    const requestUrl = new URL(request.url);
+    if (request.headers.get("Origin") !== requestUrl.origin) {
+      return json({ error: "This request was not accepted." }, 403);
+    }
+
+    const bindings = env as QuoteBindings;
+    if (!bindings.QUOTE_RATE_LIMITER || !bindings.QUOTE_GLOBAL_RATE_LIMITER) {
+      return json(
+        { error: "Quotes are temporarily unavailable. Please call or email us." },
+        503,
+      );
+    }
+
+    const visitorKey = request.headers.get("CF-Connecting-IP") ?? "unknown-client";
+    const [visitorLimit, globalLimit] = await Promise.all([
+      bindings.QUOTE_RATE_LIMITER.limit({ key: visitorKey }),
+      bindings.QUOTE_GLOBAL_RATE_LIMITER.limit({ key: "all-quotes" }),
+    ]);
+    if (!visitorLimit.success || !globalLimit.success) {
+      return json(
+        { error: "Too many quote requests were sent. Please wait a minute and try again." },
+        429,
+        { "Retry-After": "60" },
+      );
+    }
+
     const form = await request.formData();
 
     // A hidden honeypot: bots receive a harmless success without creating mail.
@@ -225,7 +264,6 @@ export async function POST(request: Request): Promise<Response> {
       return json({ error: "Please confirm the preferred window size." }, 400);
     }
 
-    const bindings = env as QuoteBindings;
     const token = text(form, "cf-turnstile-response", 2048);
     if (!bindings.TURNSTILE_SECRET || !token) {
       return json(
@@ -280,7 +318,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    if (!bindings.QUOTE_EMAIL) {
+    if (!bindings.RESEND_API_KEY) {
       return json(
         { error: "Quote email delivery is not configured yet. Please call us." },
         503,
@@ -345,36 +383,65 @@ export async function POST(request: Request): Promise<Response> {
       .join("");
     const attachments = await Promise.all(
       files.map(async (file): Promise<EmailAttachment> => ({
-        content: await file.arrayBuffer(),
+        content: arrayBufferToBase64(await file.arrayBuffer()),
         filename: cleanFilename(file.name),
-        type: file.type || "application/octet-stream",
-        disposition: "attachment",
       })),
     );
 
-    await bindings.QUOTE_EMAIL.send({
-      to: QUOTE_TO,
-      from: { email: QUOTE_FROM, name: "The Shed Shop Website" },
-      replyTo: { email: customerEmail, name },
-      subject: `New quote ${reference} — ${purposeLabels[purpose]} — ${location}`,
-      text: [
-        "NEW WEBSITE PROJECT BRIEF",
-        "",
-        ...rows.map(([label, value]) => `${label}: ${value}`),
-        "",
-        "PROJECT DETAILS",
-        details || "No additional details supplied.",
-        "",
-        "OPENINGS / ACCESS NOTES",
-        openingNotes || "No additional opening notes supplied.",
-        "",
-        attachments.length
-          ? `${attachments.length} attachment(s) included.`
-          : "No attachments supplied.",
-      ].join("\n"),
-      html: `<div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#071f2c"><div style="background:#071f2c;padding:24px 28px;color:#fff"><div style="font-size:12px;letter-spacing:.12em;color:#75cce8">THE SHED SHOP</div><h1 style="margin:8px 0 0;font-size:26px">New project brief</h1></div><div style="padding:26px 28px;border:1px solid #d5e2e7;border-top:0"><table style="width:100%;border-collapse:collapse">${table}</table><h2 style="margin:26px 0 10px;font-size:17px">Project details</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(details || "No additional details supplied.").replace(/\n/g, "<br>")}</p><h2 style="margin:26px 0 10px;font-size:17px">Openings and access notes</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(openingNotes || "No additional opening notes supplied.").replace(/\n/g, "<br>")}</p><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #d5e2e7;color:#58717c;font-size:12px">Reply to this email to contact ${escapeHtml(name)} directly.</p></div></div>`,
-      attachments: attachments.length ? attachments : undefined,
+    const resendResponse = await fetch(RESEND_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${bindings.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": `shed-shop-quote-${reference}`,
+      },
+      body: JSON.stringify({
+        from: `The Shed Shop Website <${QUOTE_FROM}>`,
+        to: [QUOTE_TO],
+        reply_to: customerEmail,
+        subject: `New quote ${reference} — ${purposeLabels[purpose]} — ${location}`,
+        text: [
+          "NEW WEBSITE PROJECT BRIEF",
+          "",
+          ...rows.map(([label, value]) => `${label}: ${value}`),
+          "",
+          "PROJECT DETAILS",
+          details || "No additional details supplied.",
+          "",
+          "OPENINGS / ACCESS NOTES",
+          openingNotes || "No additional opening notes supplied.",
+          "",
+          attachments.length
+            ? `${attachments.length} attachment(s) included.`
+            : "No attachments supplied.",
+        ].join("\n"),
+        html: `<div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#071f2c"><div style="background:#071f2c;padding:24px 28px;color:#fff"><div style="font-size:12px;letter-spacing:.12em;color:#75cce8">THE SHED SHOP</div><h1 style="margin:8px 0 0;font-size:26px">New project brief</h1></div><div style="padding:26px 28px;border:1px solid #d5e2e7;border-top:0"><table style="width:100%;border-collapse:collapse">${table}</table><h2 style="margin:26px 0 10px;font-size:17px">Project details</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(details || "No additional details supplied.").replace(/\n/g, "<br>")}</p><h2 style="margin:26px 0 10px;font-size:17px">Openings and access notes</h2><p style="margin:0;line-height:1.65;white-space:normal">${escapeHtml(openingNotes || "No additional opening notes supplied.").replace(/\n/g, "<br>")}</p><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #d5e2e7;color:#58717c;font-size:12px">Reply to this email to contact ${escapeHtml(name)} directly.</p></div></div>`,
+        attachments: attachments.length ? attachments : undefined,
+        tags: [
+          { name: "source", value: "website-quote" },
+          { name: "reference", value: reference },
+        ],
+      }),
     });
+
+    if (!resendResponse.ok) {
+      let resendError = "Unknown Resend error";
+      try {
+        const payload = (await resendResponse.json()) as {
+          message?: string;
+          name?: string;
+        };
+        resendError = payload.message ?? payload.name ?? resendError;
+      } catch {
+        // The response status is still enough to diagnose this in Worker logs.
+      }
+      console.error("Resend quote delivery failed", {
+        status: resendResponse.status,
+        error: resendError,
+        reference,
+      });
+      throw new Error("Resend rejected the quote email.");
+    }
 
     return json({ ok: true, reference });
   } catch (error) {
