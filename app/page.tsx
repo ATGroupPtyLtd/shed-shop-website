@@ -251,12 +251,12 @@ export default function Home() {
         <div className="shell builder-feature-grid">
           <div className="builder-feature-image">
             <Image
-              src="/generated/builder-hero.png"
-              alt="Premium gable workshop visualisation"
+              src="/concepts/home-gable.webp"
+              alt="Completed gable workshop project"
               fill
               sizes="(max-width: 900px) 100vw, 52vw"
             />
-            <span>20 structural concepts</span>
+            <span>20 completed projects</span>
           </div>
           <div className="builder-feature-copy">
             <p className="eyebrow light">

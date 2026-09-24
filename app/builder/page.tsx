@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 export const metadata: Metadata = {
   title: "Interactive Shed Builder",
   description:
-    "Explore 20 purpose and building-form concepts, then nominate your cladding, COLORBOND finish and approximate shed size.",
+    "Explore 20 completed Shed Shop projects, then nominate your cladding, COLORBOND finish and approximate shed size.",
 };
 
 export default async function BuilderPage({
@@ -33,9 +33,9 @@ export default async function BuilderPage({
             </h1>
           </div>
           <p>
-            Choose a purpose and building form to preview one of 20 structural
-            concepts, then nominate the cladding, COLORBOND finish and
-            approximate size for your project brief.
+            Choose a purpose and building form to explore one of 20 completed
+            Shed Shop projects, then nominate the cladding, COLORBOND finish
+            and approximate size for your project brief.
           </p>
         </div>
       </section>

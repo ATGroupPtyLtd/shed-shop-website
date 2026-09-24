@@ -57,15 +57,15 @@ export function ShedBuilder({
           <Image
             key={image}
             src={image}
-            alt={`${currentStyle.label} concept for ${currentPurpose.title}`}
+            alt={`Completed ${currentStyle.label.toLowerCase()} project selected for ${currentPurpose.title.toLowerCase()}`}
             fill
             priority
             sizes="(max-width: 980px) 100vw, 52vw"
           />
           <div className="render-status">
-            <i /> Structure preview
+            <i /> Real project
           </div>
-          <div className="render-count">20 structural concepts</div>
+          <div className="render-count">20 completed builds</div>
           <div
             className="finish-preview"
             aria-label={`Selected finish: ${currentColour.label}`}
@@ -93,9 +93,9 @@ export function ShedBuilder({
           </button>
         </div>
         <p className="render-disclaimer">
-          The image previews purpose and building form. Your cladding and
-          finish selections are recorded for the project brief and confirmed in
-          the final drawings.
+          A completed local project selected to illustrate purpose and building
+          form. Your cladding and finish selections are recorded for the
+          project brief and confirmed in the final drawings.
         </p>
       </aside>
 
