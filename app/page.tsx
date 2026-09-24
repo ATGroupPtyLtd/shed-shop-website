@@ -57,7 +57,7 @@ export default function Home() {
       <SiteHeader />
       <section className="home-hero">
         <Image
-          src="/projects/project-05.jpg"
+          src="/generated/home-hero-hd.webp"
           alt="Architectural commercial shed completed by The Shed Shop"
           fill
           priority
@@ -71,9 +71,10 @@ export default function Home() {
               Family-owned. Built for Victoria.
             </p>
             <h1>
-              Built for
-              <br />
-              <em>what&apos;s next.</em>
+              <span>Designed for you,</span>
+              <span>
+                <em>Built to last</em>
+              </span>
             </h1>
             <p>
               From the first sketch to the final bolt, our local team makes

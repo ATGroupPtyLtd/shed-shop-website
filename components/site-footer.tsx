@@ -2,10 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-export function SiteFooter() {
+export function SiteFooter({ hideCta = false }: { hideCta?: boolean }) {
   return (
     <footer className="site-footer">
-      <div className="footer-cta shell">
+      {!hideCta && <div className="footer-cta shell">
         <div>
           <span>Have a project in mind?</span>
           <h2>
@@ -17,7 +17,7 @@ export function SiteFooter() {
         <Link href="/quote">
           Start a conversation <ArrowRight />
         </Link>
-      </div>
+      </div>}
       <div className="footer-main shell">
         <div className="footer-brand">
           <Link href="/">

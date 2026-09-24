@@ -353,10 +353,10 @@ p {
   inset: 0;
   background:
     linear-gradient(90deg,
-      rgba(2, 13, 22, 0.91) 0%,
-      rgba(2, 13, 22, 0.63) 42%,
-      rgba(2, 13, 22, 0.13) 76%),
-    linear-gradient(0deg, rgba(2, 13, 22, 0.7), transparent 55%);
+      rgba(2, 13, 22, 0.86) 0%,
+      rgba(2, 13, 22, 0.55) 42%,
+      rgba(2, 13, 22, 0.1) 76%),
+    linear-gradient(0deg, rgba(2, 13, 22, 0.62), transparent 55%);
 }
 
 .hero-layout {
@@ -369,7 +369,7 @@ p {
 }
 
 .hero-copy {
-  max-width: 800px;
+  max-width: 900px;
 }
 
 .hero-copy h1,
@@ -390,6 +390,16 @@ p {
 .quote-intro h1 em {
   color: var(--blue);
   font-style: normal;
+}
+
+.hero-copy h1 {
+  font-size: clamp(64px, 7vw, 104px);
+  line-height: 0.84;
+}
+
+.hero-copy h1 span {
+  display: block;
+  white-space: nowrap;
 }
 
 .hero-copy>p:not(.eyebrow) {
@@ -3077,8 +3087,8 @@ p {
 
   .home-hero-shade {
     background:
-      linear-gradient(90deg, rgba(2, 13, 22, 0.9), rgba(2, 13, 22, 0.3)),
-      linear-gradient(0deg, rgba(2, 13, 22, 0.75), transparent);
+      linear-gradient(90deg, rgba(2, 13, 22, 0.86), rgba(2, 13, 22, 0.25)),
+      linear-gradient(0deg, rgba(2, 13, 22, 0.72), transparent);
   }
 
   .hero-layout {
@@ -3086,7 +3096,8 @@ p {
   }
 
   .hero-copy h1 {
-    font-size: 68px;
+    font-size: clamp(36px, 11vw, 48px);
+    line-height: 0.88;
   }
 
   .hero-copy>p:not(.eyebrow) {

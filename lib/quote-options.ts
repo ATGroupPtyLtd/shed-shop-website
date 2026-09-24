@@ -48,6 +48,7 @@ export const wallInsulationOptions = [
 export const accessoryOptions = [
   { id: "skylights", label: "Skylights" },
   { id: "roof-vents", label: "Roof vents" },
+  { id: "vermaseal", label: "Vermaseal" },
   { id: "verandah", label: "Verandah or awning" },
   { id: "mezzanine", label: "Mezzanine" },
   { id: "glass-slider", label: "Glass sliding door" },
