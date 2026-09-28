@@ -1,23 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { SocialLinks } from "@/components/social-links";
 
 export function SiteFooter({ hideCta = false }: { hideCta?: boolean }) {
   return (
     <footer className="site-footer">
-      {!hideCta && <div className="footer-cta shell">
-        <div>
-          <span>Have a project in mind?</span>
-          <h2>
-            Bring us the job.
-            <br />
-            We’ll build the answer.
-          </h2>
+      {!hideCta && (
+        <div className="footer-cta shell">
+          <div>
+            <span>Have a project in mind?</span>
+            <h2>
+              Bring us the job.
+              <br />
+              We’ll build the answer.
+            </h2>
+          </div>
+          <Link href="/quote">
+            Start a conversation <ArrowRight />
+          </Link>
         </div>
-        <Link href="/quote">
-          Start a conversation <ArrowRight />
-        </Link>
-      </div>}
+      )}
       <div className="footer-main shell">
         <div className="footer-brand">
           <Link href="/">
@@ -32,6 +35,7 @@ export function SiteFooter({ hideCta = false }: { hideCta?: boolean }) {
             Purpose-built steel structures for Victorian homes, farms and
             businesses.
           </p>
+          <SocialLinks className="footer-socials" showLabels />
         </div>
         <div>
           <span>Explore</span>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
+import { SocialLinks } from "@/components/social-links";
 
 const links = [
   ["What we build", "/#what-we-build"],
@@ -16,14 +17,23 @@ const links = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === "/"
+      ? pathname === "/"
+      : href.startsWith("/#")
+        ? pathname === "/"
+        : pathname === href;
   return (
     <>
       <div className="utility">
         <span>Australian-made · Family-owned · Built in Victoria</span>
-        <a href="tel:0351778433">
-          <Phone />
-          03 5177 8433
-        </a>
+        <div className="utility-actions">
+          <SocialLinks className="utility-socials" />
+          <a className="utility-phone" href="tel:0351778433">
+            <Phone />
+            03 5177 8433
+          </a>
+        </div>
       </div>
       <header className="site-header">
         <Link className="site-logo" href="/" aria-label="The Shed Shop home">
@@ -63,29 +73,60 @@ export function SiteHeader() {
         </button>
       </header>
       {open ? (
-        <div className="mobile-nav">
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label="Close navigation"
-          >
-            <X />
-          </button>
-          <Link href="/" onClick={() => setOpen(false)}>
-            Home
-          </Link>
-          {links.map(([label, href]) => (
-            <Link key={href} href={href} onClick={() => setOpen(false)}>
-              {label}
+        <div
+          className="mobile-nav"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site navigation"
+        >
+          <div className="mobile-nav-head">
+            <Link
+              className="mobile-nav-logo"
+              href="/"
+              onClick={() => setOpen(false)}
+              aria-label="The Shed Shop home"
+            >
+              <Image
+                src="/logo-reverse.png"
+                alt="The Shed Shop"
+                width={190}
+                height={84}
+              />
             </Link>
-          ))}
-          <Link
-            className="mobile-quote"
-            href="/quote"
-            onClick={() => setOpen(false)}
-          >
-            Request a quote <ArrowRight />
-          </Link>
+            <button
+              className="mobile-nav-close"
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close navigation"
+            >
+              <X />
+            </button>
+          </div>
+          <nav className="mobile-nav-links" aria-label="Mobile navigation">
+            {links.map(([label, href]) => (
+              <Link
+                className={isActive(href) ? "active" : ""}
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <div className="mobile-nav-footer">
+            <Link
+              className="mobile-quote"
+              href="/quote"
+              onClick={() => setOpen(false)}
+            >
+              Request a quote <ArrowRight />
+            </Link>
+            <div className="mobile-nav-connect">
+              <span>Follow our latest builds</span>
+              <SocialLinks className="mobile-socials" showLabels />
+            </div>
+          </div>
         </div>
       ) : null}
     </>
