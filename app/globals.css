@@ -562,6 +562,8 @@ p {
 }
 
 .hero-copy {
+  width: 100%;
+  min-width: 0;
   max-width: 900px;
 }
 
@@ -3353,8 +3355,10 @@ p {
   }
 
   .hero-copy h1 {
-    font-size: clamp(36px, 11vw, 48px);
-    line-height: 0.88;
+    max-width: 100%;
+    font-size: clamp(29px, 9vw, 42px);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
   }
 
   .hero-copy>p:not(.eyebrow) {
