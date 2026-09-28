@@ -45,7 +45,7 @@ export default function AboutPage() {
         title="Practical people."
         accent="Personal service."
         copy="A family-owned team in Traralgon, helping Victorian homes, farms and businesses turn a shed idea into a well-managed build."
-        image="/projects/project-11.jpg"
+        image="/projects/project-11.webp"
       />
 
       <section className="about-intro shell section-space">

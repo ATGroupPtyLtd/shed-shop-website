@@ -318,8 +318,8 @@ export function QuoteForm({
         error?: string;
         reference?: string;
       } = response.headers.get("content-type")?.includes("application/json")
-        ? await response.json()
-        : {};
+          ? await response.json()
+          : {};
       if (!response.ok) {
         if (response.status === 413) {
           throw new Error(
@@ -367,6 +367,7 @@ export function QuoteForm({
             setWindowSize("unsure");
             window.setTimeout(resetTurnstile, 0);
           }}
+          className="pt-4"
         >
           Send another brief
         </button>

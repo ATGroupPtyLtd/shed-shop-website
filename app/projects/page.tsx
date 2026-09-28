@@ -19,7 +19,7 @@ export default function ProjectsPage() {
         title="Real work."
         accent="Real structures."
         copy="Twenty-seven original images from completed buildings, interiors, fabrication and construction—because capability is better shown than claimed."
-        image="/projects/project-12.jpg"
+        image="/projects/project-12.webp"
       />
       <section className="portfolio-page shell section-space">
         <div className="portfolio-intro">

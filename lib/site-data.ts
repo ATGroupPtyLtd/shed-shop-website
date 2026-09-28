@@ -93,7 +93,7 @@ export const colours = [
 
 export const projects = [
   {
-    image: "/projects/project-01.jpg",
+    image: "/projects/project-01.webp",
     title: "Agricultural portal frame",
     description:
       "The exposed portal frame shows the building's structural skeleton taking shape before cladding is installed.",
@@ -101,7 +101,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-02.jpg",
+    image: "/projects/project-02.webp",
     title: "Open machinery canopy",
     description:
       "A broad open-front canopy giving farm machinery direct access and dependable weather protection.",
@@ -109,7 +109,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-03.jpg",
+    image: "/projects/project-03.webp",
     title: "Rural multi-bay workshop",
     description:
       "A substantial rural workshop with multiple bays arranged for flexible equipment and vehicle access.",
@@ -117,7 +117,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-04.jpg",
+    image: "/projects/project-04.webp",
     title: "Commercial mezzanine facility",
     description:
       "An integrated steel mezzanine creates valuable working and storage area within the commercial footprint.",
@@ -125,7 +125,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-05.jpg",
+    image: "/projects/project-05.webp",
     title: "Architectural trade facility",
     description:
       "A contemporary trade facility combining a practical workshop footprint with a strong street-facing facade.",
@@ -133,7 +133,7 @@ export const projects = [
     type: "custom",
   },
   {
-    image: "/projects/project-06.jpg",
+    image: "/projects/project-06.webp",
     title: "Residential garage workshop",
     description:
       "A secure residential garage and workshop designed to sit neatly alongside the surrounding home environment.",
@@ -141,7 +141,7 @@ export const projects = [
     type: "home",
   },
   {
-    image: "/projects/project-07.jpg",
+    image: "/projects/project-07.webp",
     title: "Large-span warehouse interior",
     description:
       "The clear-span interior provides an open, adaptable floor area without unnecessary internal obstructions.",
@@ -149,7 +149,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-08.jpg",
+    image: "/projects/project-08.webp",
     title: "Detailed home workshop",
     description:
       "Brickwork, roller-door access and considered detailing give this home workshop a polished, integrated finish.",
@@ -157,7 +157,7 @@ export const projects = [
     type: "home",
   },
   {
-    image: "/projects/project-09.jpg",
+    image: "/projects/project-09.webp",
     title: "Custom two-storey structure",
     description:
       "A bespoke two-storey steel structure carefully fitted into a compact residential setting.",
@@ -165,7 +165,7 @@ export const projects = [
     type: "custom",
   },
   {
-    image: "/projects/project-10.jpg",
+    image: "/projects/project-10.webp",
     title: "Industrial fit-out",
     description:
       "The internal steel frame and roof system of a commercial fit-out before the space moves into operation.",
@@ -173,7 +173,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-11.jpg",
+    image: "/projects/project-11.webp",
     title: "Local steel fabrication",
     description:
       "A close look at local steel fabrication as structural components are prepared for the build.",
@@ -181,7 +181,7 @@ export const projects = [
     type: "process",
   },
   {
-    image: "/projects/project-12.jpg",
+    image: "/projects/project-12.webp",
     title: "Industrial build in progress",
     description:
       "An industrial project during construction, showing the scale of the site and structural work involved.",
@@ -189,7 +189,7 @@ export const projects = [
     type: "process",
   },
   {
-    image: "/projects/project-13.jpg",
+    image: "/projects/project-13.webp",
     title: "Rural storage workshop",
     description:
       "A long rural building providing protected storage and practical workshop space under one roof.",
@@ -197,7 +197,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-14.jpg",
+    image: "/projects/project-14.webp",
     title: "Traditional rural barn",
     description:
       "A traditional barn form with generous central access and practical storage along each side.",
@@ -205,7 +205,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-15.jpg",
+    image: "/projects/project-15.webp",
     title: "Mezzanine floor system",
     description:
       "A purpose-built steel mezzanine adding usable floor area without increasing the building footprint.",
@@ -213,7 +213,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-16.jpg",
+    image: "/projects/project-16.webp",
     title: "Large industrial structure",
     description:
       "A large industrial structure demonstrating the scale and clean geometry possible with portal-frame construction.",
@@ -221,7 +221,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-17.jpg",
+    image: "/projects/project-17.webp",
     title: "Finished workshop interior",
     description:
       "A completed workshop interior with a clear working floor, natural light and an unobstructed steel structure.",
@@ -229,7 +229,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-18.jpg",
+    image: "/projects/project-18.webp",
     title: "Verandah farm shed",
     description:
       "A rural shed with a deep verandah providing covered access and useful sheltered space along the building.",
@@ -237,7 +237,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-19.jpg",
+    image: "/projects/project-19.webp",
     title: "Multi-wing machinery shed",
     description:
       "A wide multi-wing layout designed to separate machinery storage while keeping every bay easy to reach.",
@@ -245,7 +245,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-20.jpg",
+    image: "/projects/project-20.webp",
     title: "Landscaped home workshop",
     description:
       "A residential workshop integrated into the property with a tidy approach, landscaping and practical access.",
@@ -253,7 +253,7 @@ export const projects = [
     type: "home",
   },
   {
-    image: "/projects/project-21.jpg",
+    image: "/projects/project-21.webp",
     title: "Multi-bay roller-door facility",
     description:
       "Multiple roller-door bays provide independent access across a hardworking commercial facility.",
@@ -261,7 +261,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-22.jpg",
+    image: "/projects/project-22.webp",
     title: "Monument farm workshop",
     description:
       "A Monument-finished farm workshop with broad openings, strong proportions and a restrained rural presence.",
@@ -269,7 +269,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-23.jpg",
+    image: "/projects/project-23.webp",
     title: "Heavy-duty mezzanine",
     description:
       "A robust mezzanine system engineered to carry demanding storage and operational loads.",
@@ -277,7 +277,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-24.jpg",
+    image: "/projects/project-24.webp",
     title: "High-clearance industrial shed",
     description:
       "A high-clearance industrial building designed around tall access points and generous internal volume.",
@@ -285,7 +285,7 @@ export const projects = [
     type: "commercial",
   },
   {
-    image: "/projects/project-25.jpg",
+    image: "/projects/project-25.webp",
     title: "Compact dual-bay workshop",
     description:
       "A compact workshop that makes efficient use of its frontage with two full-height roller-door bays.",
@@ -293,7 +293,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-26.jpg",
+    image: "/projects/project-26.webp",
     title: "Storage shed with lean-to",
     description:
       "A simple skillion-roof storage building with an efficient form and straightforward sheltered access.",
@@ -301,7 +301,7 @@ export const projects = [
     type: "farm",
   },
   {
-    image: "/projects/project-27.jpg",
+    image: "/projects/project-27.webp",
     title: "Structural steel installation",
     description:
       "Structural steel being installed on site as the building's frame and final form come together.",

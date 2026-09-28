@@ -538,6 +538,7 @@ p {
 .home-hero>img {
   object-fit: cover;
   object-position: center 55%;
+  filter: brightness(1.035) saturate(1.055) contrast(1.015);
   animation: hero-in 1.1s ease both;
 }
 
@@ -546,10 +547,10 @@ p {
   inset: 0;
   background:
     linear-gradient(90deg,
-      rgba(2, 13, 22, 0.86) 0%,
-      rgba(2, 13, 22, 0.55) 42%,
-      rgba(2, 13, 22, 0.1) 76%),
-    linear-gradient(0deg, rgba(2, 13, 22, 0.62), transparent 55%);
+      rgba(2, 13, 22, 0.8) 0%,
+      rgba(2, 13, 22, 0.47) 42%,
+      rgba(2, 13, 22, 0.06) 76%),
+    linear-gradient(0deg, rgba(2, 13, 22, 0.54), transparent 55%);
 }
 
 .hero-layout {
@@ -713,16 +714,18 @@ p {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(6, 23, 36, 0.04), rgba(6, 23, 36, 0.32));
+  background: linear-gradient(180deg, rgba(6, 23, 36, 0.02), rgba(6, 23, 36, 0.2));
 }
 
 .service-card-image img {
   object-fit: cover;
-  transition: transform 0.6s ease;
+  filter: brightness(1.045) saturate(1.07) contrast(1.015);
+  transition: transform 0.6s ease, filter 0.35s ease;
 }
 
 .service-card:hover .service-card-image img {
   transform: scale(1.035);
+  filter: brightness(1.06) saturate(1.1) contrast(1.02);
 }
 
 .service-card-image>span {
@@ -857,6 +860,7 @@ p {
 
 .builder-feature-image img {
   object-fit: cover;
+  filter: brightness(1.055) saturate(1.075) contrast(1.01);
 }
 
 .builder-feature-image>span {
@@ -993,6 +997,7 @@ p {
 
 .portfolio-card img {
   object-fit: cover;
+  filter: brightness(1.055) saturate(1.075) contrast(1.015);
   transition:
     transform 0.65s ease,
     filter 0.35s;
@@ -1000,13 +1005,13 @@ p {
 
 .portfolio-card:hover img {
   transform: scale(1.035);
-  filter: saturate(1.08);
+  filter: brightness(1.075) saturate(1.12) contrast(1.02);
 }
 
 .portfolio-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(2, 16, 26, 0.92), transparent 68%);
+  background: linear-gradient(0deg, rgba(2, 16, 26, 0.82), transparent 63%);
 }
 
 .portfolio-index {
@@ -1225,6 +1230,7 @@ p {
 .page-hero>img {
   object-fit: cover;
   object-position: center;
+  filter: brightness(1.055) saturate(1.075) contrast(1.015);
 }
 
 .page-hero-shade {
@@ -1232,10 +1238,10 @@ p {
   inset: 0;
   background:
     linear-gradient(90deg,
-      rgba(2, 14, 23, 0.93),
-      rgba(2, 14, 23, 0.48) 58%,
-      rgba(2, 14, 23, 0.17)),
-    linear-gradient(0deg, rgba(2, 14, 23, 0.58), transparent 60%);
+      rgba(2, 14, 23, 0.84),
+      rgba(2, 14, 23, 0.38) 58%,
+      rgba(2, 14, 23, 0.1)),
+    linear-gradient(0deg, rgba(2, 14, 23, 0.48), transparent 60%);
 }
 
 .page-hero-content {
@@ -1301,12 +1307,13 @@ p {
 
 .specialist-cards img {
   object-fit: cover;
+  filter: brightness(1.055) saturate(1.075) contrast(1.015);
 }
 
 .specialist-cards article>span {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(2, 16, 26, 0.95), transparent 72%);
+  background: linear-gradient(0deg, rgba(2, 16, 26, 0.84), transparent 66%);
 }
 
 .specialist-cards article>div {
@@ -1417,6 +1424,7 @@ p {
 .lightbox-image img {
   object-fit: contain;
   background: #020b11;
+  filter: brightness(1.045) saturate(1.065) contrast(1.01);
 }
 
 .lightbox-caption {
@@ -1534,6 +1542,7 @@ p {
 
 .builder-canvas img {
   object-fit: cover;
+  filter: brightness(1.05) saturate(1.065) contrast(1.01);
   animation: render-in 0.32s ease both;
 }
 
@@ -2196,6 +2205,7 @@ p {
 
 .team-photo>img {
   object-fit: cover;
+  filter: brightness(1.035) saturate(1.05) contrast(1.01);
 }
 
 .team-photo-placeholder {
@@ -3346,8 +3356,8 @@ p {
 
   .home-hero-shade {
     background:
-      linear-gradient(90deg, rgba(2, 13, 22, 0.86), rgba(2, 13, 22, 0.25)),
-      linear-gradient(0deg, rgba(2, 13, 22, 0.72), transparent);
+      linear-gradient(90deg, rgba(2, 13, 22, 0.79), rgba(2, 13, 22, 0.18)),
+      linear-gradient(0deg, rgba(2, 13, 22, 0.64), transparent);
   }
 
   .hero-layout {

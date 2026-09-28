@@ -15,7 +15,7 @@ import { purposes } from "@/lib/site-data";
 const serviceEntries = [
   {
     ...purposes[0],
-    image: "/projects/project-06.jpg",
+    image: "/projects/project-06.webp",
     features: [
       "Garages and secure storage",
       "Workshops and hobby spaces",
@@ -24,7 +24,7 @@ const serviceEntries = [
   },
   {
     ...purposes[1],
-    image: "/projects/project-19.jpg",
+    image: "/projects/project-19.webp",
     features: [
       "Machinery and implement storage",
       "Open-front and high-clearance access",
@@ -33,7 +33,7 @@ const serviceEntries = [
   },
   {
     ...purposes[2],
-    image: "/projects/project-03.jpg",
+    image: "/projects/project-03.webp",
     features: [
       "Workshops and warehouses",
       "Large-span operational buildings",
@@ -42,7 +42,7 @@ const serviceEntries = [
   },
   {
     ...purposes[3],
-    image: "/projects/project-05.jpg",
+    image: "/projects/project-05.webp",
     features: [
       "Hangars, shelters and community buildings",
       "Non-standard forms and footprints",
@@ -212,7 +212,7 @@ export default function Home() {
           <div className="specialist-cards">
             <article>
               <Image
-                src="/projects/project-15.jpg"
+                src="/projects/project-15.webp"
                 alt="Engineered mezzanine floor structure"
                 fill
                 sizes="(max-width: 850px) 100vw, 50vw"
@@ -229,7 +229,7 @@ export default function Home() {
             </article>
             <article>
               <Image
-                src="/projects/project-09.jpg"
+                src="/projects/project-09.webp"
                 alt="Custom steel structure with architectural cladding"
                 fill
                 sizes="(max-width: 850px) 100vw, 50vw"
