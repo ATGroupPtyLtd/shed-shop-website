@@ -3002,23 +3002,36 @@ p {
 
 .form-success {
   min-height: 600px;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
+  overflow: hidden;
+}
+
+.form-success::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 5px;
+  background: var(--blue);
+  content: "";
 }
 
 .form-success>svg {
-  width: 46px;
-  height: 46px;
-  padding: 12px;
+  width: 54px;
+  height: 54px;
+  padding: 15px;
   border-radius: 50%;
   background: var(--blue);
   color: white;
+  box-shadow: 0 0 0 8px rgba(41, 170, 211, 0.1);
 }
 
 .form-success span {
-  margin-top: 23px;
+  margin-top: 30px;
   color: var(--blue-dark);
   font-size: 11px;
   font-weight: 800;
@@ -3027,28 +3040,59 @@ p {
 }
 
 .form-success h2 {
-  max-width: 500px;
-  margin: 12px 0 15px;
+  max-width: 570px;
+  margin: 15px 0 20px;
   font-family: var(--font-display);
-  font-size: 42px;
-  line-height: 0.95;
+  font-size: clamp(40px, 5vw, 54px);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
   text-transform: uppercase;
 }
 
 .form-success p {
-  max-width: 500px;
+  max-width: 540px;
+  margin: 0;
   color: var(--muted);
-  line-height: 1.7;
+  font-size: 16px;
+  line-height: 1.75;
 }
 
 .form-success button {
-  padding: 0 0 5px;
-  border: 0;
-  border-bottom: 1px solid;
-  background: none;
+  min-height: 52px;
+  margin-top: 30px;
+  padding: 0 21px;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: white;
   font-size: 12px;
   font-weight: 800;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.form-success button svg {
+  width: 17px;
+  height: 17px;
+  transition: transform 160ms ease;
+}
+
+.form-success button:hover {
+  border-color: var(--blue);
+  background: var(--blue);
+  transform: translateY(-1px);
+}
+
+.form-success button:hover svg {
+  transform: translateX(3px);
+}
+
+.form-success button:focus-visible {
+  outline: 3px solid rgba(41, 170, 211, 0.32);
+  outline-offset: 3px;
 }
 
 .faq {
@@ -3124,6 +3168,7 @@ p {
 }
 
 @media (max-width: 1180px) {
+
   .desktop-nav,
   .header-cta {
     display: none;
@@ -3612,6 +3657,26 @@ p {
   .quote-form,
   .form-success {
     padding: 25px 18px;
+  }
+
+  .form-success {
+    min-height: 520px;
+    padding: 46px 24px;
+  }
+
+  .form-success h2 {
+    margin-top: 14px;
+    font-size: clamp(36px, 11vw, 44px);
+  }
+
+  .form-success p {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .form-success button {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .form-head {

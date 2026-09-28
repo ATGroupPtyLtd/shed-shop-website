@@ -13,6 +13,7 @@ import {
   type DragEvent,
   type FormEvent,
   type KeyboardEvent,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -54,6 +55,9 @@ type Defaults = {
 
 type TurnstileWindow = Window & {
   turnstile?: { reset: () => void };
+  onQuoteTurnstileSuccess?: () => void;
+  onQuoteTurnstileExpired?: () => void;
+  onQuoteTurnstileError?: () => void;
 };
 
 type LiveField =
@@ -178,6 +182,7 @@ export function QuoteForm({
   const [rollerDoorSize, setRollerDoorSize] = useState("unsure");
   const [windows, setWindows] = useState("0");
   const [windowSize, setWindowSize] = useState("unsure");
+  const [turnstileVerified, setTurnstileVerified] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
   const liveErrors = Object.fromEntries(
@@ -186,7 +191,7 @@ export function QuoteForm({
       validateLiveField(field, liveValues[field]),
     ]),
   ) as Record<LiveField, string>;
-  const turnstileReady =
+  const turnstileConfigured =
     Boolean(turnstileSiteKey) &&
     !turnstileSiteKey.startsWith("REPLACE_WITH_");
   const selectionSummary = [
@@ -199,8 +204,35 @@ export function QuoteForm({
       : "",
   ].filter(Boolean);
 
-  const resetTurnstile = () =>
+  useEffect(() => {
+    const browserWindow = window as TurnstileWindow;
+    browserWindow.onQuoteTurnstileSuccess = () => {
+      setTurnstileVerified(true);
+      setError((current) =>
+        current.startsWith("The security check") ? "" : current,
+      );
+    };
+    browserWindow.onQuoteTurnstileExpired = () => {
+      setTurnstileVerified(false);
+    };
+    browserWindow.onQuoteTurnstileError = () => {
+      setTurnstileVerified(false);
+      setError(
+        "The security check could not load. Please refresh the page and try again in a moment.",
+      );
+    };
+
+    return () => {
+      delete browserWindow.onQuoteTurnstileSuccess;
+      delete browserWindow.onQuoteTurnstileExpired;
+      delete browserWindow.onQuoteTurnstileError;
+    };
+  }, []);
+
+  const resetTurnstile = () => {
+    setTurnstileVerified(false);
     (window as TurnstileWindow).turnstile?.reset();
+  };
 
   const visibleError = (field: LiveField) =>
     touchedFields[field] || liveValues[field] ? liveErrors[field] : "";
@@ -305,6 +337,13 @@ export function QuoteForm({
       return;
     }
 
+    if (!turnstileVerified) {
+      setError(
+        "The security check is still loading or has expired. Please wait a moment and try again.",
+      );
+      return;
+    }
+
     setStatus("sending");
 
     try {
@@ -367,9 +406,10 @@ export function QuoteForm({
             setWindowSize("unsure");
             window.setTimeout(resetTurnstile, 0);
           }}
-          className="pt-4"
+          className="send-another-button"
         >
           Send another brief
+          <ArrowRight aria-hidden="true" />
         </button>
       </div>
     );
@@ -377,10 +417,16 @@ export function QuoteForm({
 
   return (
     <>
-      {turnstileReady ? (
+      {turnstileConfigured ? (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
           strategy="afterInteractive"
+          onError={() => {
+            setTurnstileVerified(false);
+            setError(
+              "The security check could not load. Please refresh the page and try again in a moment.",
+            );
+          }}
         />
       ) : null}
       <form
@@ -904,12 +950,15 @@ export function QuoteForm({
         </FormSection>
 
         <div className="turnstile-area">
-          {turnstileReady ? (
+          {turnstileConfigured ? (
             <div
               className="cf-turnstile"
               data-sitekey={turnstileSiteKey}
               data-action="quote"
               data-theme="light"
+              data-callback="onQuoteTurnstileSuccess"
+              data-expired-callback="onQuoteTurnstileExpired"
+              data-error-callback="onQuoteTurnstileError"
             />
           ) : (
             <p>
@@ -928,7 +977,11 @@ export function QuoteForm({
           </p>
           <button
             type="submit"
-            disabled={status === "sending" || !turnstileReady}
+            disabled={
+              status === "sending" ||
+              !turnstileConfigured ||
+              !turnstileVerified
+            }
           >
             {status === "sending" ? "Sending securely…" : "Send project brief"}
             {status === "sending" ? (

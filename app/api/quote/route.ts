@@ -291,10 +291,23 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const token = text(form, "cf-turnstile-response", 2048);
-    if (!bindings.TURNSTILE_SECRET || !token) {
+    if (!bindings.TURNSTILE_SECRET) {
       return json(
-        { error: "Quote security is not configured yet. Please call or email us." },
+        {
+          error:
+            "Secure quote submission is temporarily unavailable. Please refresh in a minute and try again. If it continues, call or email us.",
+        },
         503,
+        { "Retry-After": "60" },
+      );
+    }
+    if (!token) {
+      return json(
+        {
+          error:
+            "The security check is still loading or has expired. Please wait a moment and try again.",
+        },
+        400,
       );
     }
 
