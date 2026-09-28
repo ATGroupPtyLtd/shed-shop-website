@@ -25,7 +25,6 @@ const team: TeamMember[] = [
   {
     name: "Adrianna",
     role: "Sales",
-    image: "/team/example-staff-portrait.png",
     description:
       "Helping customers explore their options and find the right starting point for their shed project.",
   },

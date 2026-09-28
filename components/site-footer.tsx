@@ -31,7 +31,7 @@ export function SiteFooter({ hideCta = false }: { hideCta?: boolean }) {
               height={98}
             />
           </Link>
-          <p>
+          <p className="pt-6">
             Purpose-built steel structures for Victorian homes, farms and
             businesses.
           </p>
